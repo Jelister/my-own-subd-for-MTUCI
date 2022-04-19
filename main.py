@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
 import sys
+import psycopg2
 
 class Login(QWidget):
 	auth = QtCore.pyqtSignal(str, str, str, str)
@@ -68,6 +69,7 @@ class Login(QWidget):
 
 class Auth(QWidget):
 	back = QtCore.pyqtSignal()
+	err = QtCore.pyqtSignal(str)
 	def __init__(self, t1, t2, t3, t4):
 		QWidget.__init__(self)
 		layout = QGridLayout()
@@ -116,10 +118,16 @@ class Controller:
         self.login.show()
 
     def show_auth(self, t1, t2, t3, t4):
-        self.auth = Auth(t1, t2, t3, t4)
-        self.login.close()
-        self.auth.back.connect(self.show_login)
-        self.auth.show()
+    	try:
+    		conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
+    		self.auth = Auth(t1, t2, t3, t4)
+    		self.login.close()
+    		self.auth.back.connect(self.show_login)
+    		self.auth.err.connect(self.show_err)
+    		self.auth.show()
+    	except Exception as e:
+    		self.show_err(str(e))
+        
 
     def show_reg(self):
     	self.login.close()
