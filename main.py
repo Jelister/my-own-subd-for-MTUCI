@@ -71,7 +71,7 @@ class Auth(QWidget):
 	def __init__(self, t1, t2, t3, t4):
 		QWidget.__init__(self)
 		layout = QGridLayout()
-		self.setWindowTitle('Authorizated')
+		self.setWindowTitle(str(t1))
 		self.setLayout(layout)
 		label = QLabel('Database name: '+str(t1)+'; User login: '+str(t2)+'; User password: '+str(t3)+'; Database port: '+str(t4))
 		layout.addWidget(label, 1, 0)
