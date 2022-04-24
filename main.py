@@ -7,43 +7,55 @@ class Login(QWidget):
 	auth = QtCore.pyqtSignal(str, str, str, str)
 	reg = QtCore.pyqtSignal(str, str, str, str)
 	err = QtCore.pyqtSignal(str)
+	cl = QtCore.pyqtSignal()
 	def __init__(self):
 		QWidget.__init__(self)
-		layout = QGridLayout()
 		self.setWindowTitle('Authorization')
 		self.setMaximumSize(QtCore.QSize(360, 640))
 		self.setMinimumSize(QtCore.QSize(360, 640))
-		self.dbname_label = QLabel('Database name:')
-		#self.dbname_label.setStyleSheet("""
-		#	font-size: 18px
-		#	""")
-		#self.dbname_label.move(30,30)
-		layout.addWidget(self.dbname_label)
-		self.dbname_line = QLineEdit()
-		layout.addWidget(self.dbname_line)
-		self.setLayout(layout)
-		self.userlogin_label = QLabel('User login:')
-		layout.addWidget(self.userlogin_label)
-		self.userlogin_line = QLineEdit()
-		layout.addWidget(self.userlogin_line)
-		self.setLayout(layout)
-		self.pass_label = QLabel('User passcode:')
-		layout.addWidget(self.pass_label)
-		self.pass_line = QLineEdit()
-		layout.addWidget(self.pass_line)
-		self.setLayout(layout)
-		self.port_label = QLabel('Database port:')
-		layout.addWidget(self.port_label)
-		self.port_line = QLineEdit('5432')
-		layout.addWidget(self.port_line)
-		self.setLayout(layout)
-		self.connect_button = QPushButton('Connect')
+		self.setStyleSheet("""background-color: rgb(75, 105, 240) """)
+		
+		self.main_label = QLabel('Authorization.', self)
+		self.frame =QFrame(self)
+		self.dbname_label = QLabel('Database name:', self)
+		self.dbname_line = QLineEdit(self)
+		self.userlogin_label = QLabel('User login:', self)
+		self.userlogin_line = QLineEdit(self)
+		self.pass_label = QLabel('User passcode:', self)
+		self.pass_line = QLineEdit(self)
+		self.port_label = QLabel('Database port:', self)
+		self.port_line = QLineEdit('5432', self)
+		self.connect_button = QPushButton('Connect!', self)
 		self.connect_button.clicked.connect(self.connect)
-		layout.addWidget(self.connect_button, 8, 1)
-		self.reg_button = QPushButton('Registration')
+		self.reg_button = QPushButton('Cancel', self)
 		self.reg_button.clicked.connect(self.registration)
-		layout.addWidget(self.reg_button, 8, 2)
-		self
+		x1 = 55
+		x2 = 155
+		self.main_label.move(95, 0)
+		self.frame.move(x1-10, 35)
+		self.dbname_label.move(x1, 50)
+		self.dbname_line.move(x2, 48)
+		self.userlogin_label.move(x1, 150)
+		self.userlogin_line.move(x2, 148)
+		self.pass_label.move(x1, 250)
+		self.pass_line.move(x2, 248)
+		self.port_label.move(x1, 350)
+		self.port_line.move(x2, 348)
+		self.connect_button.move(130, 450)
+		self.reg_button.move(150, 550)
+
+		self.main_label.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 24px; color: rgb(255, 255, 255); font: bold "Times New Roman"; border-radius: 5px; min-width: 170; min-height: 30; max-width: 170; max-height: 30""")
+		self.frame.setStyleSheet("""background-color: rgb(255, 255, 255); min-height: 480; min-width: 270; border-radius: 8px """)
+		self.dbname_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
+		self.dbname_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24""")
+		self.userlogin_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24""")
+		self.userlogin_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
+		self.pass_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24""")
+		self.pass_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
+		self.port_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24""")
+		self.port_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
+		self.connect_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
+		self.reg_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 14px; color: white; font: bold "Times New Roman"; border-radius: 0px; min-width: 60; min-height: 24; max-width: 60; max-height: 24""")
 	def connect(self):
 		if len(str(self.dbname_line.text())) > 0:
 			if len(str(self.userlogin_line.text())) > 0:
@@ -59,6 +71,9 @@ class Login(QWidget):
 		else:
 			self.err.emit('Database name error: Database name line can\'t be empty!')
 	def registration(self):
+		self.cl.emit()
+	"""
+	def registration(self):
 		if len(str(self.dbname_line.text())) > 0:
 			if len(str(self.userlogin_line.text())) > 0:
 				if len(str(self.pass_line.text())) > 0:
@@ -72,7 +87,7 @@ class Login(QWidget):
 				self.err.emit('Login error: login line can\'t be empty!')
 		else:
 			self.err.emit('Database name error: Database name line can\'t be empty!')
-
+	"""
 class Auth(QWidget):
 	back = QtCore.pyqtSignal()
 	err = QtCore.pyqtSignal(str)
@@ -133,6 +148,8 @@ class DataBaseEditor(QWidget):
 		self.label = QLabel(str(db))
 		layout.addWidget(self.label)
 		self.setLayout(layout)
+
+
 class Controller:
     def __init__(self):
         pass
@@ -142,6 +159,7 @@ class Controller:
         self.login.auth.connect(self.show_auth)
         self.login.reg.connect(self.show_reg)
         self.login.err.connect(self.show_err)
+        self.login.cl.connect(self.hide_login)
         try:
         	self.auth.close()
         except AttributeError:
@@ -172,6 +190,8 @@ class Controller:
     	self.login.close()
     def hide_err(self):
     	self.erroring.close()
+    def hide_login(self):
+    	self.login.close()
 
     def show_err(self, t):
     	print(t)
