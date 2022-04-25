@@ -18,11 +18,11 @@ class Login(QWidget):
 		self.main_label = QLabel('Authorization.', self)
 		self.frame =QFrame(self)
 		self.dbname_label = QLabel('Database name:', self)
-		self.dbname_line = QLineEdit(self)
+		self.dbname_line = QLineEdit('postgres', self)
 		self.userlogin_label = QLabel('User login:', self)
-		self.userlogin_line = QLineEdit(self)
+		self.userlogin_line = QLineEdit('postgres', self)
 		self.pass_label = QLabel('User passcode:', self)
-		self.pass_line = QLineEdit(self)
+		self.pass_line = QLineEdit('ebwervEgnabRom6', self)
 		self.port_label = QLabel('Database port:', self)
 		self.port_line = QLineEdit('5432', self)
 		self.connect_button = QPushButton('Connect!', self)
@@ -113,9 +113,14 @@ class Auth(QWidget):
 		self.back.emit()
 
 	def conn(self, t1, t2, t3, t4):
-		s = 'SELECT * FROM '+self.selecter.text()
-		print(s)
-		self.conn1.emit(s, t1, t2, t3, t4)
+		s = self.selecter.text()
+		try:
+			conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
+			cur_sql = conn.cursor()
+			cur_sql.execute('SELECT * FROM '+str(s))
+			self.conn1.emit(s, t1, t2, t3, t4)
+		except Exception as e:
+			self.err.emit(str(e))
 
 class LoginError(QWidget):
 	cl = QtCore.pyqtSignal()
@@ -136,19 +141,48 @@ class DataBaseEditor(QWidget):
 	back = QtCore.pyqtSignal()
 	comm = QtCore.pyqtSignal()#add smtn
 	def __init__(self, s, t1, t2, t3, t4):
+
 		conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
 		cur_sql = conn.cursor()
-		cur_sql.execute(str(s))
+		cur_sql.execute('SELECT * FROM '+str(s))
 		db = cur_sql.fetchall()
+
 		QWidget.__init__(self)
 		layout = QGridLayout()
-		self.setWindowTitle(s[13:-1]+s[-1])
+		self.setWindowTitle(str(t1)+', '+str(s))
 		self.setMaximumSize(QtCore.QSize(800, 600))
 		self.setMinimumSize(QtCore.QSize(800, 600))
+		"""
 		self.label = QLabel(str(db))
 		layout.addWidget(self.label)
 		self.setLayout(layout)
+		"""
 
+		a = 0
+		b = 0
+		for hor in db:
+			a+=1
+			if a == 1:
+				for ver in hor:
+					b+=1
+
+		self.table = QTableWidget(self)
+		self.table.setColumnCount(b)
+		self.table.setRowCount(a)
+		self.table.setMinimumWidth(800)
+		self.table.setMinimumHeight(600)
+		self.table.move(0, 0)
+		self.table.setStyleSheet("""background: rgb(0, 0, 0); background-color: rgb(255, 255, 255); color: rgb(0, 0, 0)""")
+		#self.table.setHorizontalHeaderLabels([str(i for i in range(b))])
+		a = 0
+		for hor in db:
+			b = 0
+			for ver in hor:
+				self.table.setItem(a, b, QTableWidgetItem(str(ver)))
+				b+=1
+			a+=1
+		self.table.resizeColumnsToContents()
+		layout.addWidget(self.table, 0, 0)
 
 class Controller:
     def __init__(self):
@@ -159,7 +193,7 @@ class Controller:
         self.login.auth.connect(self.show_auth)
         self.login.reg.connect(self.show_reg)
         self.login.err.connect(self.show_err)
-        self.login.cl.connect(self.hide_login)
+        self.login.cl.connect(lambda: self.login.close())
         try:
         	self.auth.close()
         except AttributeError:
@@ -188,15 +222,10 @@ class Controller:
     	self.db.show()
     def show_reg(self):
     	self.login.close()
-    def hide_err(self):
-    	self.erroring.close()
-    def hide_login(self):
-    	self.login.close()
-
+    	# mb do smth here, but later. :|
     def show_err(self, t):
-    	print(t)
     	self.erroring = LoginError(t)
-    	self.erroring.cl.connect(self.hide_err)
+    	self.erroring.cl.connect(lambda: self.erroring.close())
     	self.erroring.show()
 app = QApplication(sys.argv)
 screen = Controller()
