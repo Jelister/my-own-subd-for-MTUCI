@@ -1,11 +1,11 @@
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
+from PyQt5.QtGui import QIcon
 import sys
 import psycopg2
 
 class Login(QWidget):
 	auth = QtCore.pyqtSignal(str, str, str, str)
-	reg = QtCore.pyqtSignal(str, str, str, str)
 	err = QtCore.pyqtSignal(str)
 	cl = QtCore.pyqtSignal()
 	def __init__(self):
@@ -17,18 +17,25 @@ class Login(QWidget):
 		
 		self.main_label = QLabel('Authorization.', self)
 		self.frame =QFrame(self)
+
 		self.dbname_label = QLabel('Database name:', self)
 		self.dbname_line = QLineEdit('postgres', self)
+
 		self.userlogin_label = QLabel('User login:', self)
 		self.userlogin_line = QLineEdit('postgres', self)
+
 		self.pass_label = QLabel('User passcode:', self)
 		self.pass_line = QLineEdit('ebwervEgnabRom6', self)
+
 		self.port_label = QLabel('Database port:', self)
 		self.port_line = QLineEdit('5432', self)
+
 		self.connect_button = QPushButton('Connect!', self)
 		self.connect_button.clicked.connect(self.connect)
-		self.reg_button = QPushButton('Cancel', self)
-		self.reg_button.clicked.connect(self.registration)
+
+		self.back_button = QPushButton('Cancel', self)
+		self.back_button.clicked.connect(lambda: self.cl.emit())
+
 		x1 = 55
 		x2 = 155
 		self.main_label.move(95, 0)
@@ -42,7 +49,7 @@ class Login(QWidget):
 		self.port_label.move(x1, 350)
 		self.port_line.move(x2, 348)
 		self.connect_button.move(130, 450)
-		self.reg_button.move(150, 550)
+		self.back_button.move(150, 550)
 
 		self.main_label.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 24px; color: rgb(255, 255, 255); font: bold "Times New Roman"; border-radius: 5px; min-width: 170; min-height: 30; max-width: 170; max-height: 30""")
 		self.frame.setStyleSheet("""background-color: rgb(255, 255, 255); min-height: 480; min-width: 270; border-radius: 8px """)
@@ -55,7 +62,7 @@ class Login(QWidget):
 		self.port_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24""")
 		self.port_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
 		self.connect_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
-		self.reg_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 14px; color: white; font: bold "Times New Roman"; border-radius: 0px; min-width: 60; min-height: 24; max-width: 60; max-height: 24""")
+		self.back_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 14px; color: white; font: bold "Times New Roman"; border-radius: 0px; min-width: 60; min-height: 24; max-width: 60; max-height: 24""")
 	def connect(self):
 		if len(str(self.dbname_line.text())) > 0:
 			if len(str(self.userlogin_line.text())) > 0:
@@ -70,50 +77,55 @@ class Login(QWidget):
 				self.err.emit('Login line error: login line can\'t be empty!')
 		else:
 			self.err.emit('Database name error: Database name line can\'t be empty!')
-	def registration(self):
-		self.cl.emit()
-	"""
-	def registration(self):
-		if len(str(self.dbname_line.text())) > 0:
-			if len(str(self.userlogin_line.text())) > 0:
-				if len(str(self.pass_line.text())) > 0:
-					if len(str(self.port_line.text())) > 0:
-						self.reg.emit(self.dbname_line.text(), self.userlogin_line.text(), self.pass_line.text(), self.port_line.text())
-					else:
-						self.err.emit('Port line error: port line can\'t be emty!')
-				else:
-					self.err.emit('Password error: password line can\'t be emty!')
-			else:
-				self.err.emit('Login error: login line can\'t be empty!')
-		else:
-			self.err.emit('Database name error: Database name line can\'t be empty!')
-	"""
+
 class Auth(QWidget):
 	back = QtCore.pyqtSignal()
 	err = QtCore.pyqtSignal(str)
 	conn1 = QtCore.pyqtSignal(str, str, str, str, str)
 	def __init__(self, t1, t2, t3, t4):
 		QWidget.__init__(self)
-		layout = QGridLayout()
-		self.setWindowTitle(str(t1))
-		self.setMaximumSize(QtCore.QSize(800, 600))
-		self.setMinimumSize(QtCore.QSize(800, 600))
-		self.setLayout(layout)
-		self.selecter = QLineEdit()
-		layout.addWidget(self.selecter, 0, 0)
-		#label = QLabel('Database name: '+str(t1)+'; User login: '+str(t2)+'; User password: '+str(t3)+'; Database port: '+str(t4))
-		#layout.addWidget(label, 1, 0)
-		self.back_button = QPushButton('Back')
+		self.setWindowTitle('Table selection.')
+		self.setMaximumSize(QtCore.QSize(360, 640))
+		self.setMinimumSize(QtCore.QSize(360, 640))
+		self.setStyleSheet("""background-color: rgb(75, 105, 240) """)
+
+		self.frame =QFrame(self)
+
+		self.main_label = QLabel('Table selection.', self)
+
+		self.selecter_label = QLabel('Table name:', self)
+
+		self.selecter_line = QLineEdit(self)
+
+		self.back_button = QPushButton('Back', self)
 		self.back_button.clicked.connect(self.back)
-		layout.addWidget(self.back_button, 1, 1)
-		self.conn_button = QPushButton('Connect')
+
+		self.conn_button = QPushButton('Connect', self)
 		self.conn_button.clicked.connect(lambda: self.conn(t1, t2, t3, t4))
-		layout.addWidget(self.conn_button, 1, 0)
+
+		
+		x1 = 55
+		x2 = 155
+		self.main_label.move(85, 0)
+		self.frame.move(x1-10, 35)
+		self.selecter_label.move(x1, 50)
+		self.selecter_line.move(x2, 48)
+		self.conn_button.move(130, 450)
+		self.back_button.move(150, 550)
+
+
+		self.main_label.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 24px; color: rgb(255, 255, 255); font: bold "Times New Roman"; border-radius: 5px; min-width: 190; min-height: 30; max-width: 190; max-height: 30""")
+		self.frame.setStyleSheet("""background-color: rgb(255, 255, 255); min-height: 480; min-width: 270; border-radius: 8px """)
+		self.selecter_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
+		self.selecter_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24""")
+		self.conn_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
+		self.back_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 14px; color: white; font: bold "Times New Roman"; border-radius: 0px; min-width: 60; min-height: 24; max-width: 60; max-height: 24""")
+	
 	def backb(self):
 		self.back.emit()
 
 	def conn(self, t1, t2, t3, t4):
-		s = self.selecter.text()
+		s = self.selecter_line.text()
 		try:
 			conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
 			cur_sql = conn.cursor()
@@ -137,18 +149,23 @@ class LoginError(QWidget):
 	def clact(self):
 		self.cl.emit()
 
-class DataBaseEditor(QWidget):
+class DataBaseEditor(QMainWindow):
 	back = QtCore.pyqtSignal()
 	comm = QtCore.pyqtSignal()#add smtn
 	def __init__(self, s, t1, t2, t3, t4):
+		super().__init__()
+
+		self.showUI(s, t1, t2, t3, t4)
+
+	def showUI(self, s, t1, t2, t3, t4):
+		
 
 		conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
 		cur_sql = conn.cursor()
 		cur_sql.execute('SELECT * FROM '+str(s))
 		db = cur_sql.fetchall()
 
-		QWidget.__init__(self)
-		layout = QGridLayout()
+		
 		self.setWindowTitle(str(t1)+', '+str(s))
 		self.setMaximumSize(QtCore.QSize(800, 600))
 		self.setMinimumSize(QtCore.QSize(800, 600))
@@ -157,7 +174,7 @@ class DataBaseEditor(QWidget):
 		layout.addWidget(self.label)
 		self.setLayout(layout)
 		"""
-
+		
 		a = 0
 		b = 0
 		for hor in db:
@@ -171,7 +188,7 @@ class DataBaseEditor(QWidget):
 		self.table.setRowCount(a)
 		self.table.setMinimumWidth(800)
 		self.table.setMinimumHeight(600)
-		self.table.move(0, 0)
+		self.table.move(0, 23)
 		self.table.setStyleSheet("""background: rgb(0, 0, 0); background-color: rgb(255, 255, 255); color: rgb(0, 0, 0)""")
 		#self.table.setHorizontalHeaderLabels([str(i for i in range(b))])
 		a = 0
@@ -182,7 +199,16 @@ class DataBaseEditor(QWidget):
 				b+=1
 			a+=1
 		self.table.resizeColumnsToContents()
-		layout.addWidget(self.table, 0, 0)
+		exitAction = QAction(QIcon('exit.png'), '&Exit', self)
+		exitAction.setShortcut('Ctrl+Q')
+		exitAction.setStatusTip('Exit application')
+		exitAction.triggered.connect(qApp.quit)
+
+		self.statusBar()
+
+		menubar = self.menuBar()
+		fileMenu = menubar.addMenu('&File')
+		fileMenu.addAction(exitAction)
 
 class Controller:
     def __init__(self):
@@ -191,7 +217,6 @@ class Controller:
     def show_login(self):
         self.login = Login()
         self.login.auth.connect(self.show_auth)
-        self.login.reg.connect(self.show_reg)
         self.login.err.connect(self.show_err)
         self.login.cl.connect(lambda: self.login.close())
         try:
@@ -199,7 +224,7 @@ class Controller:
         except AttributeError:
         	pass
         try:
-        	self.reg.close()
+        	self.reg.close()	
         except AttributeError:
         	pass
         self.login.show()
@@ -220,13 +245,12 @@ class Controller:
     	self.db = DataBaseEditor(s, t1, t2, t3, t4)
     	self.auth.close()
     	self.db.show()
-    def show_reg(self):
-    	self.login.close()
-    	# mb do smth here, but later. :|
+
     def show_err(self, t):
     	self.erroring = LoginError(t)
     	self.erroring.cl.connect(lambda: self.erroring.close())
     	self.erroring.show()
+
 app = QApplication(sys.argv)
 screen = Controller()
 screen.show_login()
