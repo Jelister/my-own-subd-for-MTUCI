@@ -139,8 +139,8 @@ class Auth(QWidget):
 class LoginError(QWidget):
 	cl = QtCore.pyqtSignal()
 	def __init__(self, t):
-		self.setWindowIcon(QIcon('c:/Users/User/desktop/python.ico'))
 		QWidget.__init__(self)
+		self.setWindowIcon(QIcon('c:/Users/User/desktop/python.ico'))
 		layout = QGridLayout()
 		self.setWindowTitle('Error')
 		self.label = QLabel(t)
@@ -154,7 +154,8 @@ class LoginError(QWidget):
 
 class DataBaseEditor(QMainWindow):
 	back = QtCore.pyqtSignal(str,str,str,str)
-	comm = QtCore.pyqtSignal()#add smtn
+	comm = QtCore.pyqtSignal()
+	err = QtCore.pyqtSignal(str)
 	def __init__(self, s, t1, t2, t3, t4):
 		super().__init__()
 
@@ -224,7 +225,7 @@ class DataBaseEditor(QMainWindow):
 		saveAction = QAction('&Save', self)
 		saveAction.setShortcut('Ctrl+S')
 		saveAction.setStatusTip('Save changes')
-		saveAction.triggered.connect(lambda: self.save_commiting_changes())
+		saveAction.triggered.connect(lambda: self.save_commiting_changes(s, t1, t2,t3,t4))
 
 		menubar = self.menuBar()
 		fileMenu = menubar.addMenu('&File')
@@ -234,8 +235,24 @@ class DataBaseEditor(QMainWindow):
 		menubar.setStyleSheet("""background: rgb(255, 255, 255); selection-background-color: rgb(145,201,247)""")
 		fileMenu.setStyleSheet("""color: rgb(0,0,0); background-color: rgb(255,255,255)""")
 
-	def save_commiting_changes(self):
-		print("aboba")
+	def save_commiting_changes(self, s,t1,t2,t3,t4):
+		try:
+			mas = []
+			a, b = self.table.rowCount(), self.table.columnCount()
+			for i in range(a):
+				st = ''
+				for j in range(b):
+					st+='\''+str(self.table.item(i, j).text())+'\', '
+					print(self.table.item(i, j).text())
+				mas+=[st[0:-2]]
+			conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
+			cur_sql = conn.cursor()
+			cur_sql.execute('DELETE FROM '+str(s))
+			for i in range(len(mas)):
+				cur_sql.execute('INSERT INTO '+str(s)+' VALUES ('+str(mas[i])+')')
+			conn.commit()
+		except Exception as e:
+			self.err.emit(str(e))
 
 class Controller:
     def __init__(self):
@@ -255,7 +272,6 @@ class Controller:
         except AttributeError:
         	pass
         self.login.show()
-
     def show_auth(self, t1, t2, t3, t4):
     	try:
     		self.db.close()
@@ -277,6 +293,7 @@ class Controller:
     	self.auth.close()
     	self.db.show()
     	self.db.back.connect(self.show_auth)
+    	self.db.err.connect(self.show_err)
 
     def show_err(self, t):
     	self.erroring = LoginError(t)
