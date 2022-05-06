@@ -20,13 +20,13 @@ class Login(QWidget):
 		self.frame =QFrame(self)
 
 		self.dbname_label = QLabel('Database name:', self)
-		self.dbname_line = QLineEdit('postgres', self)
+		self.dbname_line = QLineEdit('', self)
 
 		self.userlogin_label = QLabel('User login:', self)
-		self.userlogin_line = QLineEdit('postgres', self)
+		self.userlogin_line = QLineEdit('', self)
 
 		self.pass_label = QLabel('User passcode:', self)
-		self.pass_line = QLineEdit('ebwervEgnabRom6', self)
+		self.pass_line = QLineEdit('', self)
 
 		self.port_label = QLabel('Database port:', self)
 		self.port_line = QLineEdit('5432', self)
@@ -102,7 +102,7 @@ class Auth(QWidget):
 		self.back_button = QPushButton('Back', self)
 		self.back_button.clicked.connect(self.back)
 
-		self.conn_button = QPushButton('Connect', self)
+		self.conn_button = QPushButton('Connect!', self)
 		self.conn_button.clicked.connect(lambda: self.conn(t1, t2, t3, t4))
 
 		
@@ -243,7 +243,6 @@ class DataBaseEditor(QMainWindow):
 				st = ''
 				for j in range(b):
 					st+='\''+str(self.table.item(i, j).text())+'\', '
-					print(self.table.item(i, j).text())
 				mas+=[st[0:-2]]
 			conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
 			cur_sql = conn.cursor()
@@ -251,6 +250,7 @@ class DataBaseEditor(QMainWindow):
 			for i in range(len(mas)):
 				cur_sql.execute('INSERT INTO '+str(s)+' VALUES ('+str(mas[i])+')')
 			conn.commit()
+			self.statusBar().showMessage("Saved!", 2000)
 		except Exception as e:
 			self.err.emit(str(e))
 
