@@ -14,6 +14,7 @@ class Login(QWidget):
 		self.setMaximumSize(QtCore.QSize(360, 640))
 		self.setMinimumSize(QtCore.QSize(360, 640))
 		self.setStyleSheet("""background-color: rgb(75, 105, 240) """)
+		self.setWindowIcon(QIcon('c:/Users/User/desktop/python.ico'))
 		
 		self.main_label = QLabel('Authorization.', self)
 		self.frame =QFrame(self)
@@ -88,6 +89,7 @@ class Auth(QWidget):
 		self.setMaximumSize(QtCore.QSize(360, 640))
 		self.setMinimumSize(QtCore.QSize(360, 640))
 		self.setStyleSheet("""background-color: rgb(75, 105, 240) """)
+		self.setWindowIcon(QIcon('c:/Users/User/desktop/python.ico'))
 
 		self.frame =QFrame(self)
 
@@ -137,6 +139,7 @@ class Auth(QWidget):
 class LoginError(QWidget):
 	cl = QtCore.pyqtSignal()
 	def __init__(self, t):
+		self.setWindowIcon(QIcon('c:/Users/User/desktop/python.ico'))
 		QWidget.__init__(self)
 		layout = QGridLayout()
 		self.setWindowTitle('Error')
@@ -150,7 +153,7 @@ class LoginError(QWidget):
 		self.cl.emit()
 
 class DataBaseEditor(QMainWindow):
-	back = QtCore.pyqtSignal()
+	back = QtCore.pyqtSignal(str,str,str,str)
 	comm = QtCore.pyqtSignal()#add smtn
 	def __init__(self, s, t1, t2, t3, t4):
 		super().__init__()
@@ -169,11 +172,20 @@ class DataBaseEditor(QMainWindow):
 		self.setWindowTitle(str(t1)+', '+str(s))
 		self.setMaximumSize(QtCore.QSize(800, 600))
 		self.setMinimumSize(QtCore.QSize(800, 600))
-		"""
-		self.label = QLabel(str(db))
-		layout.addWidget(self.label)
-		self.setLayout(layout)
-		"""
+		self.setStyleSheet("""background-color: rgb(255,255,255) """)
+		self.setWindowIcon(QIcon('c:/Users/User/desktop/python.ico'))
+		self.main_frame = QFrame(self)
+		self.main_frame.setStyleSheet("""background-color: rgb(75, 105, 240); min-height: 600; min-width: 800; max-height: 600; max-width: 800; border-radius: 8px """)
+
+		self.statusBar()
+		self.statusBar().setStyleSheet("""background-color: rgb(75, 105, 240)""")
+		self.table_frame =QFrame(self)
+		self.table_frame.move(20, 40)
+		self.table_frame.setStyleSheet("""background-color: rgb(255, 255, 255); min-height: 540; min-width: 760; max-height: 540; max-width: 760; border-radius: 8px """)
+
+		#self.menu_frame = QFrame(self)
+		#self.menu_frame.move(0, 0)
+		#self.menu_frame.setStyleSheet("""background-color: rgb(255, 255, 255); min-height: 20; min-width: 800; max-height: 20; max-width: 800""")
 		
 		a = 0
 		b = 0
@@ -186,10 +198,10 @@ class DataBaseEditor(QMainWindow):
 		self.table = QTableWidget(self)
 		self.table.setColumnCount(b)
 		self.table.setRowCount(a)
-		self.table.setMinimumWidth(800)
-		self.table.setMinimumHeight(600)
-		self.table.move(0, 23)
-		self.table.setStyleSheet("""background: rgb(0, 0, 0); background-color: rgb(255, 255, 255); color: rgb(0, 0, 0)""")
+		self.table.setMinimumWidth(740)
+		self.table.setMinimumHeight(500)
+		self.table.move(30, 50)
+		self.table.setStyleSheet("""border-radius: 0px; background-color: rgb(255, 255, 255); background: rgb(255, 255, 255); border-color: rgb(255,255,255); outline-color: rgb(255,255,255); color: rgb(0, 0, 0)""")
 		#self.table.setHorizontalHeaderLabels([str(i for i in range(b))])
 		a = 0
 		for hor in db:
@@ -199,16 +211,31 @@ class DataBaseEditor(QMainWindow):
 				b+=1
 			a+=1
 		self.table.resizeColumnsToContents()
-		exitAction = QAction(QIcon('exit.png'), '&Exit', self)
+		exitAction = QAction('&Exit', self)
 		exitAction.setShortcut('Ctrl+Q')
 		exitAction.setStatusTip('Exit application')
 		exitAction.triggered.connect(qApp.quit)
 
-		self.statusBar()
+		backAction = QAction('&Back', self)
+		backAction.setShortcut('Ctrl+B')
+		backAction.setStatusTip('Change table')
+		backAction.triggered.connect(lambda: self.back.emit(t1, t2, t3, t4))
+
+		saveAction = QAction('&Save', self)
+		saveAction.setShortcut('Ctrl+S')
+		saveAction.setStatusTip('Save changes')
+		saveAction.triggered.connect(lambda: self.save_commiting_changes())
 
 		menubar = self.menuBar()
 		fileMenu = menubar.addMenu('&File')
+		fileMenu.addAction(saveAction)
+		fileMenu.addAction(backAction)
 		fileMenu.addAction(exitAction)
+		menubar.setStyleSheet("""background: rgb(255, 255, 255); selection-background-color: rgb(145,201,247)""")
+		fileMenu.setStyleSheet("""color: rgb(0,0,0); background-color: rgb(255,255,255)""")
+
+	def save_commiting_changes(self):
+		print("aboba")
 
 class Controller:
     def __init__(self):
@@ -231,6 +258,10 @@ class Controller:
 
     def show_auth(self, t1, t2, t3, t4):
     	try:
+    		self.db.close()
+    	except AttributeError:
+    		pass
+    	try:
     		conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
     		self.auth = Auth(t1, t2, t3, t4)
     		self.login.close()
@@ -245,6 +276,7 @@ class Controller:
     	self.db = DataBaseEditor(s, t1, t2, t3, t4)
     	self.auth.close()
     	self.db.show()
+    	self.db.back.connect(self.show_auth)
 
     def show_err(self, t):
     	self.erroring = LoginError(t)
