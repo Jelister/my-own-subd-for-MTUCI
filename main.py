@@ -213,7 +213,6 @@ class DataBaseEditor(QMainWindow):
 		exitAction.setShortcut('Ctrl+Q')
 		exitAction.setStatusTip('Exit application')
 		exitAction.triggered.connect(qApp.quit)
-
 		backAction = QAction('&Back', self)
 		backAction.setShortcut('Ctrl+B')
 		backAction.setStatusTip('Change table')
@@ -232,16 +231,16 @@ class DataBaseEditor(QMainWindow):
 		fileMenu.addAction(backAction)
 		fileMenu.addAction(exitAction)
 		fileMenu.setStyleSheet("""color: rgb(0,0,0); background-color: rgb(255,255,255)""")
-
+		
 		rowAction = QAction('&Add row', self)
 		rowAction.setShortcut('Ctrl+Alt+R')
 		rowAction.setStatusTip('Add a new row')
 		rowAction.triggered.connect(lambda: self.table.setRowCount(int(self.table.rowCount()+1)))
-
+		
 		colAction = QAction('&Add column', self)
 		colAction.setShortcut('Ctrl+Alt+C')
 		colAction.setStatusTip('Add a new column')
-		colAction.triggered.connect(lambda: self.add_col())
+		colAction.triggered.connect(lambda: self.add_col(t1,t2,t3,t4))
 
 		delrowAction = QAction('&Delete row', self)
 		delrowAction.setShortcut('Ctrl+Shift+r')
@@ -251,7 +250,7 @@ class DataBaseEditor(QMainWindow):
 		delcolAction = QAction('&Delete column', self)
 		delcolAction.setShortcut('Ctrl+Shift+C')
 		delcolAction.setStatusTip('Delete last column')
-		delcolAction.triggered.connect(lambda: self.del_cow())
+		delcolAction.triggered.connect(lambda: self.del_col(t1,t2,t3,t4))
 
 		editMenu = menubar.addMenu('&Edit')
 		editMenu.addAction(rowAction)
@@ -260,8 +259,17 @@ class DataBaseEditor(QMainWindow):
 		editMenu.addAction(delcolAction)
 		editMenu.setStyleSheet("""color: rgb(0,0,0); background-color: rgb(255,255,255)""")
 
-	def add_col(self):
+	def add_col(self, t1,t2,t3,t4):
+		self.adding_col = ColumnWindow(1,t1,t2,t3,t4)
+		self.adding_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()+1)))#, self.adding_col.close())
+		self.adding_col.ko.connect(lambda: self.adding_col.close())
+		self.adding_col.show()
 
+	def del_col(self,t1,t2,t3,t4):
+		self.deling_col = ColumnWindow(0,t1,t2,t3,t4)
+		self.deling_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()-1)))
+		self.deling_col.ko.connect(lambda: self.deling_col.close())
+		self.deling_col.show()
 
 	def save_commiting_changes(self, s,t1,t2,t3,t4):
 		try:
@@ -281,6 +289,55 @@ class DataBaseEditor(QMainWindow):
 			self.statusBar().showMessage("Saved!", 2000)
 		except Exception as e:
 			self.err.emit(str(e))
+			
+class ColumnWindow(QWidget):
+    ok = QtCore.pyqtSignal()
+    ko = QtCore.pyqtSignal()
+    err = QtCore.pyqtSignal(str)
+    def __init__(self,a,t1,t2,t3,t4):
+        QWidget.__init__(self)
+        self.setMaximumSize(QtCore.QSize(360, 640))
+        self.setMinimumSize(QtCore.QSize(360, 640))
+        if a == 1:
+            self.line = QLineEdit('ALTER TABLE test ADD COLUMN description text', self)
+        else:
+            self.line = QLineEdit('ALTER TABLE test DROP COLUMN description', self)
+        self.ok_button = QPushButton('Ok', self)
+        self.ko_button = QPushButton('Cancel', self)
+
+        self.line.move(50,50)
+        self.ok_button.move(50, 100)
+        self.ko_button.move(150,100)
+
+        self.line.setStyleSheet("""min-width: 250""")
+
+        self.ok_button.clicked.connect(lambda: self.do_do(a, str(self.line.text()), t1, t2, t3, t4))
+        self.ko_button.clicked.connect(lambda: self.ko.emit())
+
+    def do_do(self, a, s, t1, t2, t3, t4):
+        if a == 0:
+            try:
+                conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
+                cur_sql = conn.cursor()
+                print(s)
+                cur_sql.execute(s)
+                conn.commit()
+                self.ok.emit()
+                self.ko.emit()
+            except Exception as e:
+                print(e)
+
+        elif a == 1:
+            try:
+                conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
+                cur_sql = conn.cursor()
+                print(s)
+                cur_sql.execute(s)
+                conn.commit()
+                self.ok.emit()
+                self.ko.emit()
+            except Exception as e:
+                print(e)
 
 class Controller:
     def __init__(self):
