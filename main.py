@@ -14,7 +14,7 @@ class Login(QWidget):
 		self.setMaximumSize(QtCore.QSize(360, 640))
 		self.setMinimumSize(QtCore.QSize(360, 640))
 		self.setStyleSheet("""background-color: rgb(75, 105, 240) """)
-		self.setWindowIcon(QIcon('c:/Users/User/desktop/python.ico'))
+		self.setWindowIcon(QIcon('python.ico'))
 		
 		self.main_label = QLabel('Authorization.', self)
 		self.frame =QFrame(self)
@@ -34,9 +34,9 @@ class Login(QWidget):
 		self.connect_button = QPushButton('Connect!', self)
 		self.connect_button.clicked.connect(self.connect)
 
-		self.back_button = QPushButton('Cancel', self)
+		self.back_button = QPushButton('&Cancel', self)
 		self.back_button.clicked.connect(lambda: self.cl.emit())
-
+		z = 100
 		x1 = 55
 		x2 = 155
 		self.main_label.move(95, 0)
@@ -55,15 +55,15 @@ class Login(QWidget):
 		self.main_label.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 24px; color: rgb(255, 255, 255); font: bold "Times New Roman"; border-radius: 5px; min-width: 170; min-height: 30; max-width: 170; max-height: 30""")
 		self.frame.setStyleSheet("""background-color: rgb(255, 255, 255); min-height: 480; min-width: 270; border-radius: 8px """)
 		self.dbname_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
-		self.dbname_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24""")
-		self.userlogin_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24""")
+		self.dbname_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
+		self.userlogin_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.userlogin_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
-		self.pass_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24""")
+		self.pass_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.pass_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
-		self.port_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24""")
+		self.port_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.port_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
 		self.connect_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
-		self.back_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 14px; color: white; font: bold "Times New Roman"; border-radius: 0px; min-width: 60; min-height: 24; max-width: 60; max-height: 24""")
+		self.back_button.setStyleSheet("""text-decoration: underline; background-color: rgb(75, 105, 240); font-size: 14px; color: white; font: bold "Times New Roman"; border-radius: 0px; min-width: 60; min-height: 24; max-width: 60; max-height: 24""")
 	def connect(self):
 		if len(str(self.dbname_line.text())) > 0:
 			if len(str(self.userlogin_line.text())) > 0:
@@ -89,7 +89,7 @@ class Auth(QWidget):
 		self.setMaximumSize(QtCore.QSize(360, 640))
 		self.setMinimumSize(QtCore.QSize(360, 640))
 		self.setStyleSheet("""background-color: rgb(75, 105, 240) """)
-		self.setWindowIcon(QIcon('c:/Users/User/desktop/python.ico'))
+		self.setWindowIcon(QIcon('python.ico'))
 
 		self.frame =QFrame(self)
 
@@ -119,7 +119,7 @@ class Auth(QWidget):
 		self.main_label.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 24px; color: rgb(255, 255, 255); font: bold "Times New Roman"; border-radius: 5px; min-width: 190; min-height: 30; max-width: 190; max-height: 30""")
 		self.frame.setStyleSheet("""background-color: rgb(255, 255, 255); min-height: 480; min-width: 270; border-radius: 8px """)
 		self.selecter_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
-		self.selecter_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24""")
+		self.selecter_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.conn_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
 		self.back_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 14px; color: white; font: bold "Times New Roman"; border-radius: 0px; min-width: 60; min-height: 24; max-width: 60; max-height: 24""")
 	
@@ -140,7 +140,7 @@ class LoginError(QWidget):
 	cl = QtCore.pyqtSignal()
 	def __init__(self, t):
 		QWidget.__init__(self)
-		self.setWindowIcon(QIcon('c:/Users/User/desktop/python.ico'))
+		self.setWindowIcon(QIcon('python.ico'))
 		layout = QGridLayout()
 		self.setWindowTitle('Error')
 		self.label = QLabel(t)
@@ -174,7 +174,7 @@ class DataBaseEditor(QMainWindow):
 		self.setMaximumSize(QtCore.QSize(800, 600))
 		self.setMinimumSize(QtCore.QSize(800, 600))
 		self.setStyleSheet("""background-color: rgb(255,255,255) """)
-		self.setWindowIcon(QIcon('c:/Users/User/desktop/python.ico'))
+		self.setWindowIcon(QIcon('python.ico'))
 		self.main_frame = QFrame(self)
 		self.main_frame.setStyleSheet("""background-color: rgb(75, 105, 240); min-height: 600; min-width: 800; max-height: 600; max-width: 800; border-radius: 8px """)
 
@@ -183,10 +183,6 @@ class DataBaseEditor(QMainWindow):
 		self.table_frame =QFrame(self)
 		self.table_frame.move(20, 40)
 		self.table_frame.setStyleSheet("""background-color: rgb(255, 255, 255); min-height: 540; min-width: 760; max-height: 540; max-width: 760; border-radius: 8px """)
-
-		#self.menu_frame = QFrame(self)
-		#self.menu_frame.move(0, 0)
-		#self.menu_frame.setStyleSheet("""background-color: rgb(255, 255, 255); min-height: 20; min-width: 800; max-height: 20; max-width: 800""")
 		
 		a = 0
 		b = 0
@@ -212,6 +208,7 @@ class DataBaseEditor(QMainWindow):
 				b+=1
 			a+=1
 		self.table.resizeColumnsToContents()
+
 		exitAction = QAction('&Exit', self)
 		exitAction.setShortcut('Ctrl+Q')
 		exitAction.setStatusTip('Exit application')
@@ -228,12 +225,43 @@ class DataBaseEditor(QMainWindow):
 		saveAction.triggered.connect(lambda: self.save_commiting_changes(s, t1, t2,t3,t4))
 
 		menubar = self.menuBar()
+		menubar.setStyleSheet("""background: rgb(255, 255, 255); selection-background-color: rgb(145,201,247)""")
+
 		fileMenu = menubar.addMenu('&File')
 		fileMenu.addAction(saveAction)
 		fileMenu.addAction(backAction)
 		fileMenu.addAction(exitAction)
-		menubar.setStyleSheet("""background: rgb(255, 255, 255); selection-background-color: rgb(145,201,247)""")
 		fileMenu.setStyleSheet("""color: rgb(0,0,0); background-color: rgb(255,255,255)""")
+
+		rowAction = QAction('&Add row', self)
+		rowAction.setShortcut('Ctrl+Alt+R')
+		rowAction.setStatusTip('Add a new row')
+		rowAction.triggered.connect(lambda: self.table.setRowCount(int(self.table.rowCount()+1)))
+
+		colAction = QAction('&Add column', self)
+		colAction.setShortcut('Ctrl+Alt+C')
+		colAction.setStatusTip('Add a new column')
+		colAction.triggered.connect(lambda: self.add_col())
+
+		delrowAction = QAction('&Delete row', self)
+		delrowAction.setShortcut('Ctrl+Shift+r')
+		delrowAction.setStatusTip('Delete last row')
+		delrowAction.triggered.connect(lambda: self.table.setRowCount(int(self.table.rowCount()-1)))
+
+		delcolAction = QAction('&Delete column', self)
+		delcolAction.setShortcut('Ctrl+Shift+C')
+		delcolAction.setStatusTip('Delete last column')
+		delcolAction.triggered.connect(lambda: self.del_cow())
+
+		editMenu = menubar.addMenu('&Edit')
+		editMenu.addAction(rowAction)
+		editMenu.addAction(colAction)
+		editMenu.addAction(delrowAction)
+		editMenu.addAction(delcolAction)
+		editMenu.setStyleSheet("""color: rgb(0,0,0); background-color: rgb(255,255,255)""")
+
+	def add_col(self):
+		
 
 	def save_commiting_changes(self, s,t1,t2,t3,t4):
 		try:
