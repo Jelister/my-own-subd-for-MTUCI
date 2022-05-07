@@ -34,7 +34,7 @@ class Login(QWidget):
 		self.connect_button = QPushButton('Connect!', self)
 		self.connect_button.clicked.connect(self.connect)
 
-		self.back_button = QPushButton('&Cancel', self)
+		self.back_button = QPushButton('Cancel', self)
 		self.back_button.clicked.connect(lambda: self.cl.emit())
 		z = 100
 		x1 = 55
@@ -261,7 +261,7 @@ class DataBaseEditor(QMainWindow):
 		editMenu.setStyleSheet("""color: rgb(0,0,0); background-color: rgb(255,255,255)""")
 
 	def add_col(self):
-		
+
 
 	def save_commiting_changes(self, s,t1,t2,t3,t4):
 		try:
