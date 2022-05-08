@@ -3,6 +3,7 @@ from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon
 import sys
 import psycopg2
+from qtwidgets import PasswordEdit
 
 class Login(QWidget):
 	auth = QtCore.pyqtSignal(str, str, str, str)
@@ -27,6 +28,7 @@ class Login(QWidget):
 
 		self.pass_label = QLabel('User passcode:', self)
 		self.pass_line = QLineEdit('', self)
+		self.pass_line.setEchoMode(QLineEdit.Password)
 
 		self.port_label = QLabel('Database port:', self)
 		self.port_line = QLineEdit('5432', self)
@@ -58,7 +60,7 @@ class Login(QWidget):
 		self.dbname_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.userlogin_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.userlogin_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
-		self.pass_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
+		self.pass_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100); password-mask-delay: 1000""")
 		self.pass_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
 		self.port_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.port_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
@@ -100,7 +102,7 @@ class Auth(QWidget):
 		self.selecter_line = QLineEdit(self)
 
 		self.back_button = QPushButton('Back', self)
-		self.back_button.clicked.connect(self.back)
+		self.back_button.clicked.connect(lambda: self.back.emit())
 
 		self.conn_button = QPushButton('Connect!', self)
 		self.conn_button.clicked.connect(lambda: self.conn(t1, t2, t3, t4))
@@ -122,9 +124,6 @@ class Auth(QWidget):
 		self.selecter_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.conn_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
 		self.back_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 14px; color: white; font: bold "Times New Roman"; border-radius: 0px; min-width: 60; min-height: 24; max-width: 60; max-height: 24""")
-	
-	def backb(self):
-		self.back.emit()
 
 	def conn(self, t1, t2, t3, t4):
 		s = self.selecter_line.text()
@@ -199,7 +198,6 @@ class DataBaseEditor(QMainWindow):
 		self.table.setMinimumHeight(500)
 		self.table.move(30, 50)
 		self.table.setStyleSheet("""border-radius: 0px; background-color: rgb(255, 255, 255); background: rgb(255, 255, 255); border-color: rgb(255,255,255); outline-color: rgb(255,255,255); color: rgb(0, 0, 0)""")
-		#self.table.setHorizontalHeaderLabels([str(i for i in range(b))])
 		a = 0
 		for hor in db:
 			b = 0
@@ -299,27 +297,31 @@ class ColumnWindow(QWidget):
         self.setMaximumSize(QtCore.QSize(360, 640))
         self.setMinimumSize(QtCore.QSize(360, 640))
         if a == 1:
-            self.line = QLineEdit('ALTER TABLE test ADD COLUMN description text', self)
+            self.col_line = QLineEdit('Enter name of the new column', self)
+            self.col_type = QLineEdit('Enter type of the new column', self)
+            self.col_type.move(50,50)
         else:
-            self.line = QLineEdit('ALTER TABLE test DROP COLUMN description', self)
+            self.col_line = QLineEdit('Enter name of the column you want to delete', self)
         self.ok_button = QPushButton('Ok', self)
         self.ko_button = QPushButton('Cancel', self)
 
-        self.line.move(50,50)
+        self.col_line.move(50,0)
         self.ok_button.move(50, 100)
         self.ko_button.move(150,100)
 
-        self.line.setStyleSheet("""min-width: 250""")
-
-        self.ok_button.clicked.connect(lambda: self.do_do(a, str(self.line.text()), t1, t2, t3, t4))
+        self.col_line.setStyleSheet("""min-width: 250""")
+        if a == 1:
+        	self.ok_button.clicked.connect(lambda: self.do_do(a, str(self.col_line.text()), self.col_type.text(), t1, t2, t3, t4))
+        elif a == 0:
+        	self.ok_button.clicked.connect(lambda: self.do_do(a, str(self.col_line.text()), 0, t1, t2, t3, t4))
         self.ko_button.clicked.connect(lambda: self.ko.emit())
 
-    def do_do(self, a, s, t1, t2, t3, t4):
+    def do_do(self, a, col_name, col_type, t1, t2, t3, t4):
         if a == 0:
             try:
                 conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
                 cur_sql = conn.cursor()
-                print(s)
+                s = 'ALTER TABLE '+t1+' DROP COLUMN '+col_name
                 cur_sql.execute(s)
                 conn.commit()
                 self.ok.emit()
@@ -331,7 +333,7 @@ class ColumnWindow(QWidget):
             try:
                 conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
                 cur_sql = conn.cursor()
-                print(s)
+                s = 'ALTER TABLE '+t1+' ADD COLUMN '+col_name+' '+col_type
                 cur_sql.execute(s)
                 conn.commit()
                 self.ok.emit()
