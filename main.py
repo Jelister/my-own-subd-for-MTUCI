@@ -257,18 +257,6 @@ class DataBaseEditor(QMainWindow):
 		editMenu.addAction(delcolAction)
 		editMenu.setStyleSheet("""color: rgb(0,0,0); background-color: rgb(255,255,255)""")
 
-	def add_col(self,s,t1,t2,t3,t4):
-		self.adding_col = ColumnWindow(1,s,t1,t2,t3,t4)
-		self.adding_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()+1)))#, self.adding_col.close())
-		self.adding_col.ko.connect(lambda: self.adding_col.close())
-		self.adding_col.show()
-
-	def del_col(self,s,t1,t2,t3,t4):
-		self.deling_col = ColumnWindow(0,s,t1,t2,t3,t4)
-		self.deling_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()-1)))
-		self.deling_col.ko.connect(lambda: self.deling_col.close())
-		self.deling_col.show()
-
 	def save_commiting_changes(self,s,t1,t2,t3,t4):
 		try:
 			mas = []
@@ -287,6 +275,19 @@ class DataBaseEditor(QMainWindow):
 			self.statusBar().showMessage("Saved!", 2000)
 		except Exception as e:
 			self.err.emit(str(e))
+
+
+	def add_col(self,s,t1,t2,t3,t4):
+		self.adding_col = ColumnWindow(1,s,t1,t2,t3,t4)
+		self.adding_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()+1)))
+		self.adding_col.ko.connect(lambda: self.adding_col.close())
+		self.adding_col.show()
+
+	def del_col(self,s,t1,t2,t3,t4):
+		self.deling_col = ColumnWindow(0,s,t1,t2,t3,t4)
+		self.deling_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()-1)))
+		self.deling_col.ko.connect(lambda: self.deling_col.close())
+		self.deling_col.show()
 			
 class ColumnWindow(QWidget):
     ok = QtCore.pyqtSignal()
@@ -312,13 +313,13 @@ class ColumnWindow(QWidget):
 
         self.col_line.setStyleSheet("""min-width: 250""")
         if a == 1:
-        	self.ok_button.clicked.connect(lambda: self.do_do(a, str(self.col_line.text()), self.col_type.text(), t1, t2, t3, t4,s))
+        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(), self.col_type.text(), t1, t2, t3, t4,s))
         elif a == 0:
-        	self.ok_button.clicked.connect(lambda: self.do_do(a, str(self.col_line.text()), 0, t1, t2, t3, t4,s))
+        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(), 0, t1, t2, t3, t4,s))
         self.ko_button.clicked.connect(lambda: self.ko.emit())
 
-    def do_do(self, a, col_name, col_type, t1, t2, t3, t4,s):
-        if a == 0:
+    def do_do(self, col_name, col_type, t1, t2, t3, t4,s):
+        if col_type == 0:
             try:
                 conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
                 cur_sql = conn.cursor()
@@ -330,7 +331,7 @@ class ColumnWindow(QWidget):
             except Exception as e:
                 print(e)
 
-        elif a == 1:
+        else:
             try:
                 conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
                 cur_sql = conn.cursor()
