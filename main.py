@@ -60,7 +60,7 @@ class Login(QWidget):
 		self.dbname_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.userlogin_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.userlogin_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
-		self.pass_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100); password-mask-delay: 1000""")
+		self.pass_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.pass_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
 		self.port_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.port_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
@@ -238,7 +238,7 @@ class DataBaseEditor(QMainWindow):
 		colAction = QAction('&Add column', self)
 		colAction.setShortcut('Ctrl+Alt+C')
 		colAction.setStatusTip('Add a new column')
-		colAction.triggered.connect(lambda: self.add_col(t1,t2,t3,t4))
+		colAction.triggered.connect(lambda: self.add_col(s,t1,t2,t3,t4))
 
 		delrowAction = QAction('&Delete row', self)
 		delrowAction.setShortcut('Ctrl+Shift+r')
@@ -248,7 +248,7 @@ class DataBaseEditor(QMainWindow):
 		delcolAction = QAction('&Delete column', self)
 		delcolAction.setShortcut('Ctrl+Shift+C')
 		delcolAction.setStatusTip('Delete last column')
-		delcolAction.triggered.connect(lambda: self.del_col(t1,t2,t3,t4))
+		delcolAction.triggered.connect(lambda: self.del_col(s,t1,t2,t3,t4))
 
 		editMenu = menubar.addMenu('&Edit')
 		editMenu.addAction(rowAction)
@@ -257,19 +257,19 @@ class DataBaseEditor(QMainWindow):
 		editMenu.addAction(delcolAction)
 		editMenu.setStyleSheet("""color: rgb(0,0,0); background-color: rgb(255,255,255)""")
 
-	def add_col(self, t1,t2,t3,t4):
-		self.adding_col = ColumnWindow(1,t1,t2,t3,t4)
+	def add_col(self,s,t1,t2,t3,t4):
+		self.adding_col = ColumnWindow(1,s,t1,t2,t3,t4)
 		self.adding_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()+1)))#, self.adding_col.close())
 		self.adding_col.ko.connect(lambda: self.adding_col.close())
 		self.adding_col.show()
 
-	def del_col(self,t1,t2,t3,t4):
-		self.deling_col = ColumnWindow(0,t1,t2,t3,t4)
+	def del_col(self,s,t1,t2,t3,t4):
+		self.deling_col = ColumnWindow(0,s,t1,t2,t3,t4)
 		self.deling_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()-1)))
 		self.deling_col.ko.connect(lambda: self.deling_col.close())
 		self.deling_col.show()
 
-	def save_commiting_changes(self, s,t1,t2,t3,t4):
+	def save_commiting_changes(self,s,t1,t2,t3,t4):
 		try:
 			mas = []
 			a, b = self.table.rowCount(), self.table.columnCount()
@@ -292,7 +292,7 @@ class ColumnWindow(QWidget):
     ok = QtCore.pyqtSignal()
     ko = QtCore.pyqtSignal()
     err = QtCore.pyqtSignal(str)
-    def __init__(self,a,t1,t2,t3,t4):
+    def __init__(self,a,s,t1,t2,t3,t4):
         QWidget.__init__(self)
         self.setMaximumSize(QtCore.QSize(360, 640))
         self.setMinimumSize(QtCore.QSize(360, 640))
@@ -302,6 +302,7 @@ class ColumnWindow(QWidget):
             self.col_type.move(50,50)
         else:
             self.col_line = QLineEdit('Enter name of the column you want to delete', self)
+
         self.ok_button = QPushButton('Ok', self)
         self.ko_button = QPushButton('Cancel', self)
 
@@ -311,17 +312,17 @@ class ColumnWindow(QWidget):
 
         self.col_line.setStyleSheet("""min-width: 250""")
         if a == 1:
-        	self.ok_button.clicked.connect(lambda: self.do_do(a, str(self.col_line.text()), self.col_type.text(), t1, t2, t3, t4))
+        	self.ok_button.clicked.connect(lambda: self.do_do(a, str(self.col_line.text()), self.col_type.text(), t1, t2, t3, t4,s))
         elif a == 0:
-        	self.ok_button.clicked.connect(lambda: self.do_do(a, str(self.col_line.text()), 0, t1, t2, t3, t4))
+        	self.ok_button.clicked.connect(lambda: self.do_do(a, str(self.col_line.text()), 0, t1, t2, t3, t4,s))
         self.ko_button.clicked.connect(lambda: self.ko.emit())
 
-    def do_do(self, a, col_name, col_type, t1, t2, t3, t4):
+    def do_do(self, a, col_name, col_type, t1, t2, t3, t4,s):
         if a == 0:
             try:
                 conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
                 cur_sql = conn.cursor()
-                s = 'ALTER TABLE '+t1+' DROP COLUMN '+col_name
+                s = 'ALTER TABLE '+s+' DROP COLUMN '+col_name
                 cur_sql.execute(s)
                 conn.commit()
                 self.ok.emit()
@@ -333,7 +334,7 @@ class ColumnWindow(QWidget):
             try:
                 conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
                 cur_sql = conn.cursor()
-                s = 'ALTER TABLE '+t1+' ADD COLUMN '+col_name+' '+col_type
+                s = 'ALTER TABLE '+s+' ADD COLUMN '+col_name+' '+col_type
                 cur_sql.execute(s)
                 conn.commit()
                 self.ok.emit()
