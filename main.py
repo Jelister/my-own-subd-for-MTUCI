@@ -169,7 +169,7 @@ class DataBaseEditor(QMainWindow):
 		db = cur_sql.fetchall()
 
 		
-		self.setWindowTitle(str(t1)+', '+str(s))
+		self.setWindowTitle(str(s)+' database Editor')
 		self.setMaximumSize(QtCore.QSize(800, 600))
 		self.setMinimumSize(QtCore.QSize(800, 600))
 		self.setStyleSheet("""background-color: rgb(255,255,255) """)
@@ -299,8 +299,25 @@ class ColumnWindow(QWidget):
         self.setMinimumSize(QtCore.QSize(360, 640))
         if a == 1:
             self.col_line = QLineEdit('Enter name of the new column', self)
-            self.col_type = QLineEdit('Enter type of the new column', self)
+
+            self.col_type = QComboBox(self)
+            self.col_type.addItem('text')
+            self.col_type.addItem('integer')
+            self.col_type.addItem('char')
+
+            self.n_null = QComboBox(self)
+            self.n_null.addItem('Yes')
+            self.n_null.addItem('No')
+
+            self.p_k = QComboBox(self)
+            self.p_k.addItem('No')
+            self.p_k.addItem('Yes')
+
+            self.def_line = QLineEdit('Default value', self)
+
             self.col_type.move(50,50)
+            self.n_null.move(100,50)
+            self.p_k.move(150,50)
         else:
             self.col_line = QLineEdit('Enter name of the column you want to delete', self)
 
@@ -313,12 +330,12 @@ class ColumnWindow(QWidget):
 
         self.col_line.setStyleSheet("""min-width: 250""")
         if a == 1:
-        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(), self.col_type.text(), t1, t2, t3, t4,s))
+        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(), self.col_type.currentText(), t1, t2, t3, t4,s,self.n_null.currentText(),self.p_k.currentText()))
         elif a == 0:
-        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(), 0, t1, t2, t3, t4,s))
+        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(), 0, 							 t1, t2, t3, t4,s,'',''))
         self.ko_button.clicked.connect(lambda: self.ko.emit())
 
-    def do_do(self, col_name, col_type, t1, t2, t3, t4,s):
+    def do_do(self, col_name, col_type, t1, t2, t3, t4,s,nn,pk):
         if col_type == 0:
             try:
                 conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
@@ -333,15 +350,25 @@ class ColumnWindow(QWidget):
 
         else:
             try:
-                conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
-                cur_sql = conn.cursor()
-                s = 'ALTER TABLE '+s+' ADD COLUMN '+col_name+' '+col_type
-                cur_sql.execute(s)
-                conn.commit()
-                self.ok.emit()
-                self.ko.emit()
+            	if pk == 'Yes':
+            		pk = 'PRIMARY KEY'
+            	else:
+            		pk = ''
+            	if nn == 'Yes':
+            		nn = 'NOT NULL'
+            	else:
+            		nn = ''
+            		pass
+            	conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
+            	cur_sql = conn.cursor()
+            	s = 'ALTER TABLE '+s+' ADD COLUMN '+col_name+' '+col_type+' '+nn+' '+pk
+            	cur_sql.execute(s)
+            	conn.commit()
+            	self.ok.emit()
+            	self.ko.emit()
             except Exception as e:
-                print(e)
+            	print('abf')
+            	print(e)
 
 class Controller:
     def __init__(self):
