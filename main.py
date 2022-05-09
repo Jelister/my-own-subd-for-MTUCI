@@ -197,6 +197,9 @@ class DataBaseEditor(QMainWindow):
 		self.table.setMinimumWidth(740)
 		self.table.setMinimumHeight(500)
 		self.table.move(30, 50)
+		column_names = [t[0] for t in cur_sql.description]
+		print(column_names)
+		self.table.setHorizontalHeaderLabels(column_names) 
 		self.table.setStyleSheet("""border-radius: 0px; background-color: rgb(255, 255, 255); background: rgb(255, 255, 255); border-color: rgb(255,255,255); outline-color: rgb(255,255,255); color: rgb(0, 0, 0)""")
 		a = 0
 		for hor in db:
@@ -298,29 +301,31 @@ class ColumnWindow(QWidget):
         self.setMaximumSize(QtCore.QSize(360, 640))
         self.setMinimumSize(QtCore.QSize(360, 640))
         if a == 1:
-            self.col_line = QLineEdit('Enter name of the new column', self)
+        	self.setWindowTitle('Adding a new column')
+        	self.col_line = QLineEdit('Enter name of the new column', self)
 
-            self.col_type = QComboBox(self)
-            self.col_type.addItem('text')
-            self.col_type.addItem('integer')
-            self.col_type.addItem('char')
+        	self.col_type = QComboBox(self)
+        	self.col_type.addItem('text')
+        	self.col_type.addItem('integer')
+        	self.col_type.addItem('char')
 
-            self.n_null = QComboBox(self)
-            self.n_null.addItem('Yes')
-            self.n_null.addItem('No')
+        	self.n_null = QComboBox(self)
+        	self.n_null.addItem('Yes')
+        	self.n_null.addItem('No')
 
-            self.p_k = QComboBox(self)
-            self.p_k.addItem('No')
-            self.p_k.addItem('Yes')
+        	self.p_k = QComboBox(self)
+        	self.p_k.addItem('No')
+        	self.p_k.addItem('Yes')
 
-            self.def_line = QLineEdit('Default value', self)
+        	self.def_line = QLineEdit('Default value', self)
 
-            self.col_type.move(50,50)
-            self.n_null.move(100,50)
-            self.p_k.move(150,50)
-            self.def_line.move(300,300)
+        	self.col_type.move(50,50)
+        	self.n_null.move(100,50)
+        	self.p_k.move(150,50)
+        	self.def_line.move(300,300)
         else:
-            self.col_line = QLineEdit('Enter name of the column you want to delete', self)
+        	self.setWindowTitle('Deleting column')
+        	self.col_line = QLineEdit('Enter name of the column you want to delete', self)
 
         self.ok_button = QPushButton('Ok', self)
         self.ko_button = QPushButton('Cancel', self)
@@ -331,9 +336,9 @@ class ColumnWindow(QWidget):
 
         self.col_line.setStyleSheet("""min-width: 250""")
         if a == 1:
-        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(), self.col_type.currentText(), t1, t2, t3, t4,s,self.n_null.currentText(),self.p_k.currentText(),self.def_line.text()))
+        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(),self.col_type.currentText(),t1,t2,t3,t4,s,self.n_null.currentText(),self.p_k.currentText(),self.def_line.text()))
         elif a == 0:
-        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(), 0, 							 t1, t2, t3, t4,s,'','',''))
+        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(),0, 							t1,t2,t3,t4,s,'','',''))
         self.ko_button.clicked.connect(lambda: self.ko.emit())
 
     def do_do(self, col_name, col_type, t1, t2, t3, t4,s,nn,pk,def_value):
