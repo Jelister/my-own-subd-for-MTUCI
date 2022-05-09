@@ -318,6 +318,7 @@ class ColumnWindow(QWidget):
             self.col_type.move(50,50)
             self.n_null.move(100,50)
             self.p_k.move(150,50)
+            self.def_line.move(300,300)
         else:
             self.col_line = QLineEdit('Enter name of the column you want to delete', self)
 
@@ -330,12 +331,12 @@ class ColumnWindow(QWidget):
 
         self.col_line.setStyleSheet("""min-width: 250""")
         if a == 1:
-        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(), self.col_type.currentText(), t1, t2, t3, t4,s,self.n_null.currentText(),self.p_k.currentText()))
+        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(), self.col_type.currentText(), t1, t2, t3, t4,s,self.n_null.currentText(),self.p_k.currentText(),self.def_line.text()))
         elif a == 0:
-        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(), 0, 							 t1, t2, t3, t4,s,'',''))
+        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(), 0, 							 t1, t2, t3, t4,s,'','',''))
         self.ko_button.clicked.connect(lambda: self.ko.emit())
 
-    def do_do(self, col_name, col_type, t1, t2, t3, t4,s,nn,pk):
+    def do_do(self, col_name, col_type, t1, t2, t3, t4,s,nn,pk,def_value):
         if col_type == 0:
             try:
                 conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
@@ -358,10 +359,12 @@ class ColumnWindow(QWidget):
             		nn = 'NOT NULL'
             	else:
             		nn = ''
+            	if def_value == 'Default value' or def_value == '':
+            		def_value = '0'
             		pass
             	conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
             	cur_sql = conn.cursor()
-            	s = 'ALTER TABLE '+s+' ADD COLUMN '+col_name+' '+col_type+' '+nn+' '+pk
+            	s = 'ALTER TABLE '+s+' ADD COLUMN '+col_name+' '+col_type+' default '+def_value+' '+nn+' '+pk
             	cur_sql.execute(s)
             	conn.commit()
             	self.ok.emit()
