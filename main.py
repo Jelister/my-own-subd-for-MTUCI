@@ -198,7 +198,6 @@ class DataBaseEditor(QMainWindow):
 		self.table.setMinimumHeight(500)
 		self.table.move(30, 50)
 		column_names = [t[0] for t in cur_sql.description]
-		print(column_names)
 		self.table.setHorizontalHeaderLabels(column_names) 
 		self.table.setStyleSheet("""border-radius: 0px; background-color: rgb(255, 255, 255); background: rgb(255, 255, 255); border-color: rgb(255,255,255); outline-color: rgb(255,255,255); color: rgb(0, 0, 0)""")
 		a = 0
@@ -375,7 +374,6 @@ class ColumnWindow(QWidget):
             	self.ok.emit()
             	self.ko.emit()
             except Exception as e:
-            	print('abf')
             	print(e)
 
 class Controller:
