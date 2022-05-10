@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QFrame, QTableWidgetItem, QLineEdit, QPushButton, QComboBox, QWidget, QMainWindow, QApplication, QLabel
+from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon
 import sys
@@ -16,7 +16,7 @@ class Login(QWidget):
 		self.setStyleSheet("""background-color: rgb(75, 105, 240) """)
 		self.setWindowIcon(QIcon('python.ico'))
 		
-		self.main_label = QLabel('Authorization.', self)
+		self.main_label = QLabel('<p align="center">Authorization.</p>', self)
 		self.frame =QFrame(self)
 
 		self.dbname_label = QLabel('Database name:', self)
@@ -37,10 +37,9 @@ class Login(QWidget):
 
 		self.back_button = QPushButton('Cancel', self)
 		self.back_button.clicked.connect(lambda: self.cl.emit())
-		z = 100
 		x1 = 55
 		x2 = 155
-		self.main_label.move(95, 0)
+		self.main_label.move(0, 0)
 		self.frame.move(x1-10, 35)
 		self.dbname_label.move(x1, 50)
 		self.dbname_line.move(x2, 48)
@@ -53,7 +52,7 @@ class Login(QWidget):
 		self.connect_button.move(130, 450)
 		self.back_button.move(150, 550)
 
-		self.main_label.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 24px; color: rgb(255, 255, 255); font: bold "Times New Roman"; border-radius: 5px; min-width: 170; min-height: 30; max-width: 170; max-height: 30""")
+		self.main_label.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 24px; color: rgb(255, 255, 255); font: bold "Times New Roman"; border-radius: 5px; min-width: 360; min-height: 30; max-width: 360; max-height: 30""")
 		self.frame.setStyleSheet("""background-color: rgb(255, 255, 255); min-height: 480; min-width: 270; border-radius: 8px """)
 		self.dbname_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
 		self.dbname_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
@@ -94,7 +93,7 @@ class Auth(QWidget):
 
 		self.frame =QFrame(self)
 
-		self.main_label = QLabel('Table selection.', self)
+		self.main_label = QLabel('<p align="center">Table selection.</p>', self)
 
 		self.selecter_label = QLabel('Table name:', self)
 
@@ -109,15 +108,15 @@ class Auth(QWidget):
 		
 		x1 = 55
 		x2 = 155
-		self.main_label.move(85, 0)
+		self.main_label.move(0, 0)
 		self.frame.move(x1-10, 35)
 		self.selecter_label.move(x1, 50)
-		self.selecter_line.move(x2, 48)
+		self.selecter_line.move(x2, 50)
 		self.conn_button.move(130, 450)
 		self.back_button.move(150, 550)
 
 
-		self.main_label.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 24px; color: rgb(255, 255, 255); font: bold "Times New Roman"; border-radius: 5px; min-width: 190; min-height: 30; max-width: 190; max-height: 30""")
+		self.main_label.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 24px; color: rgb(255, 255, 255); font: bold "Times New Roman"; border-radius: 5px; min-width: 360; min-height: 30; max-width: 360; max-height: 30""")
 		self.frame.setStyleSheet("""background-color: rgb(255, 255, 255); min-height: 480; min-width: 270; border-radius: 8px """)
 		self.selecter_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
 		self.selecter_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
@@ -280,9 +279,18 @@ class DataBaseEditor(QMainWindow):
 
 	def add_col(self,s,t1,t2,t3,t4):
 		self.adding_col = ColumnWindow(1,s,t1,t2,t3,t4)
-		self.adding_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()+1)))
+		#self.adding_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()+1)))
+		self.adding_col.ok.connect(self.adding_colum)
 		self.adding_col.ko.connect(lambda: self.adding_col.close())
 		self.adding_col.show()
+
+	def adding_colum(self, col_name, t1, t2, t3,t4,s):
+		self.table.setColumnCount(int(self.table.columnCount()+1))
+		conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
+		cur_sql = conn.cursor()
+		cur_sql.execute('SELECT * FROM '+str(s))
+		self.table.setHorizontalHeaderLabels([t[0] for t in cur_sql.description])
+
 
 	def del_col(self,s,t1,t2,t3,t4):
 		self.deling_col = ColumnWindow(0,s,t1,t2,t3,t4)
@@ -290,64 +298,109 @@ class DataBaseEditor(QMainWindow):
 		self.deling_col.ko.connect(lambda: self.deling_col.close())
 		self.deling_col.show()
 			
-class ColumnWindow(QWidget):
-    ok = QtCore.pyqtSignal()
+class ColumnWindow(QDialog):
+    ok = QtCore.pyqtSignal(str, str, str, str, str, str)
     ko = QtCore.pyqtSignal()
     err = QtCore.pyqtSignal(str)
     def __init__(self,a,s,t1,t2,t3,t4):
-        QWidget.__init__(self)
-        self.setMaximumSize(QtCore.QSize(360, 640))
-        self.setMinimumSize(QtCore.QSize(360, 640))
+        QDialog.__init__(self)
+        self.setMaximumSize(QtCore.QSize(480, 640))
+        self.setMinimumSize(QtCore.QSize(480, 640))
+        self.setStyleSheet("""background: rgb(75, 105, 240)""")
+        self.frame =QFrame(self)
+        self.frame.move(45, 35)
+
         if a == 1:
         	self.setWindowTitle('Adding a new column')
-        	self.col_line = QLineEdit('Enter name of the new column', self)
+        	self.main_label = QLabel('<p align="center">Adding column.</p>', self)
 
+        	self.col_line = QLineEdit('', self)
+        	self.col_line_label = QLabel('Name of the new column:',self)
+
+        	self.col_type_label = QLabel('Type of the new column:',self)
         	self.col_type = QComboBox(self)
         	self.col_type.addItem('text')
         	self.col_type.addItem('integer')
         	self.col_type.addItem('char')
 
+        	self.n_null_label = QLabel('Not null? ',self)
         	self.n_null = QComboBox(self)
         	self.n_null.addItem('Yes')
         	self.n_null.addItem('No')
 
+        	self.p_k_label = QLabel('Primary key? ',self)
         	self.p_k = QComboBox(self)
         	self.p_k.addItem('No')
         	self.p_k.addItem('Yes')
 
+        	self.def_line_label = QLabel('Default value of column',self)
         	self.def_line = QLineEdit('Default value', self)
 
-        	self.col_type.move(50,50)
-        	self.n_null.move(100,50)
-        	self.p_k.move(150,50)
-        	self.def_line.move(300,300)
+        	x1 = 55
+        	x2 = 285
+        	x3 = 72+x2
+        	self.main_label.move(0, 0)
+        	self.col_line_label.move(x1, 50)
+        	self.col_line.move(x2, 48)
+        	self.col_type_label.move(x1, 150)
+        	self.col_type.move(x3, 148)
+        	self.n_null_label.move(x1, 250)
+        	self.n_null.move(x3, 248)
+        	self.p_k_label.move(x1, 350)
+        	self.p_k.move(x3, 348)
+        	self.def_line_label.move(x1,400)
+        	self.def_line.move(x2, 398)
+
+        	self.col_type.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
+        	self.col_type_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
+        	self.n_null.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
+        	self.n_null_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
+        	self.p_k.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
+        	self.p_k_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
+        	self.def_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
+        	self.def_line_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
+
         else:
         	self.setWindowTitle('Deleting column')
-        	self.col_line = QLineEdit('Enter name of the column you want to delete', self)
+        	self.col_line_label = QLabel('Name of the column to delete:',self)
+        	self.col_line = QLineEdit('', self)
+        	self.main_label = QLabel('<p align="center">Deleting column.</p>', self)
+
+        	x1 = 55
+        	x2 = 285
+        	self.main_label.move(0, 0)
+        	self.frame.move(x1-10, 35)
+        	self.col_line_label.move(x1, 50)
+        	self.col_line.move(x2, 48)
 
         self.ok_button = QPushButton('Ok', self)
         self.ko_button = QPushButton('Cancel', self)
-
-        self.col_line.move(50,0)
-        self.ok_button.move(50, 100)
-        self.ko_button.move(150,100)
-
-        self.col_line.setStyleSheet("""min-width: 250""")
+        self.ok_button.move(80, 450)
+        self.ko_button.move(300, 450)
+        self.col_line_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
+        self.col_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
+        self.main_label.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 24px; color: rgb(255, 255, 255); font: bold "Times New Roman"; border-radius: 5px; min-width: 480; min-height: 30; max-width: 480; max-height: 30""")
+        self.frame.setStyleSheet("""background-color: rgb(255, 255, 255); min-height: 480; min-width: 390; border-radius: 8px """)
+        self.ok_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
+        self.ko_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
+        
         if a == 1:
         	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(),self.col_type.currentText(),t1,t2,t3,t4,s,self.n_null.currentText(),self.p_k.currentText(),self.def_line.text()))
         elif a == 0:
-        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(),0, 							t1,t2,t3,t4,s,'','',''))
+        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(),0,t1,t2,t3,t4,s,'','',''))
         self.ko_button.clicked.connect(lambda: self.ko.emit())
+        
 
-    def do_do(self, col_name, col_type, t1, t2, t3, t4,s,nn,pk,def_value):
+
+    def do_do(self, col_name, col_type, t1, t2, t3, t4,table_name,nn,pk,def_value):
         if col_type == 0:
             try:
                 conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
                 cur_sql = conn.cursor()
-                s = 'ALTER TABLE '+s+' DROP COLUMN '+col_name
+                s = 'ALTER TABLE '+table_name+' DROP COLUMN '+col_name
                 cur_sql.execute(s)
                 conn.commit()
-                self.ok.emit()
+                self.ok.emit(col_name, t1, t2, t3,t4,table_name)
                 self.ko.emit()
             except Exception as e:
                 print(e)
@@ -367,10 +420,10 @@ class ColumnWindow(QWidget):
             		pass
             	conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
             	cur_sql = conn.cursor()
-            	s = 'ALTER TABLE '+s+' ADD COLUMN '+col_name+' '+col_type+' default '+def_value+' '+nn+' '+pk
+            	s = 'ALTER TABLE '+table_name+' ADD COLUMN '+col_name+' '+col_type+' default '+def_value+' '+nn+' '+pk
             	cur_sql.execute(s)
             	conn.commit()
-            	self.ok.emit()
+            	self.ok.emit(col_name, t1, t2, t3,t4,table_name)
             	self.ko.emit()
             except Exception as e:
             	print(e)
