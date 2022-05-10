@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QFrame, QTableWidgetItem, QLineEdit, QPushButton, QComboBox, QWidget, QMainWindow, QApplication, QLabel
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon
 import sys
