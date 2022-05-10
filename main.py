@@ -3,7 +3,7 @@ from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon
 import sys
 import psycopg2
-
+#private one, dude#
 class Login(QWidget):
 	auth = QtCore.pyqtSignal(str, str, str, str)
 	err = QtCore.pyqtSignal(str)
