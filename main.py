@@ -233,7 +233,7 @@ class DataBaseEditor(QMainWindow):
 		rowAction = QAction('&Add row', self)
 		rowAction.setShortcut('Ctrl+Alt+R')
 		rowAction.setStatusTip('Add a new row')
-		rowAction.triggered.connect(lambda: self.table.setRowCount(int(self.table.rowCount()+1)))
+		rowAction.triggered.connect(lambda: self.add_row)
 		
 		colAction = QAction('&Add column', self)
 		colAction.setShortcut('Ctrl+Alt+C')
@@ -243,7 +243,7 @@ class DataBaseEditor(QMainWindow):
 		delrowAction = QAction('&Delete row', self)
 		delrowAction.setShortcut('Ctrl+Shift+r')
 		delrowAction.setStatusTip('Delete last row')
-		delrowAction.triggered.connect(lambda: self.table.setRowCount(int(self.table.rowCount()-1)))
+		delrowAction.triggered.connect(lambda: self.del_row)
 
 		delcolAction = QAction('&Delete column', self)
 		delcolAction.setShortcut('Ctrl+Shift+C')
@@ -276,13 +276,23 @@ class DataBaseEditor(QMainWindow):
 		except Exception as e:
 			self.err.emit(str(e))
 
-
+	def add_row(self):
+		self.adding_row = RowWindow()
+		self.adding_row.ok.connect(self.table.setRowCount(int(self.table.rowCount()+1)))
+		self.adding_row.ok.connect(self.adding_row.close())
+		self.adding_row.exec_()
+	def del_row(self):
+		self.deling_row = RowWindow()
+		self.deling_row.ok.connect(self.table.setRowCount(int(self.table.rowCount()-1)))
+		self.deling_row.ok.connect(self.deling_row.close())
+		self.deling_row.exec_()
 	def add_col(self,s,t1,t2,t3,t4):
 		self.adding_col = ColumnWindow(1,s,t1,t2,t3,t4)
 		#self.adding_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()+1)))
 		self.adding_col.ok.connect(self.adding_colum)
 		self.adding_col.ko.connect(lambda: self.adding_col.close())
-		self.adding_col.show()
+		self.adding_col.err.connect(lambda: self.err.emit(str(e)))
+		self.adding_col.exec_()
 
 	def adding_colum(self, col_name, t1, t2, t3,t4,s):
 		self.table.setColumnCount(int(self.table.columnCount()+1))
@@ -297,7 +307,11 @@ class DataBaseEditor(QMainWindow):
 		self.deling_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()-1)))
 		self.deling_col.ko.connect(lambda: self.deling_col.close())
 		self.deling_col.show()
-			
+class RowWindow(QWidget):
+	ok=QtCore.pyqtSignal()
+	ko=QtCore.pyqtSignal()
+	def __init__(self):
+
 class ColumnWindow(QDialog):
     ok = QtCore.pyqtSignal(str, str, str, str, str, str)
     ko = QtCore.pyqtSignal()
@@ -403,7 +417,7 @@ class ColumnWindow(QDialog):
                 self.ok.emit(col_name, t1, t2, t3,t4,table_name)
                 self.ko.emit()
             except Exception as e:
-                print(e)
+                self.err.emit(e)
 
         else:
             try:
@@ -426,7 +440,7 @@ class ColumnWindow(QDialog):
             	self.ok.emit(col_name, t1, t2, t3,t4,table_name)
             	self.ko.emit()
             except Exception as e:
-            	print(e)
+            	self.err.emit(e)
 
 class Controller:
     def __init__(self):
