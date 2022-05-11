@@ -133,7 +133,7 @@ class Auth(QWidget):
 		except Exception as e:
 			self.err.emit(str(e))
 
-class LoginError(QWidget):
+class LoginError(QDialog):
 	cl = QtCore.pyqtSignal()
 	def __init__(self, t):
 		QWidget.__init__(self)
@@ -233,7 +233,7 @@ class DataBaseEditor(QMainWindow):
 		rowAction = QAction('&Add row', self)
 		rowAction.setShortcut('Ctrl+Alt+R')
 		rowAction.setStatusTip('Add a new row')
-		rowAction.triggered.connect(lambda: self.add_row)
+		rowAction.triggered.connect(lambda: self.add_row())
 		
 		colAction = QAction('&Add column', self)
 		colAction.setShortcut('Ctrl+Alt+C')
@@ -243,7 +243,7 @@ class DataBaseEditor(QMainWindow):
 		delrowAction = QAction('&Delete row', self)
 		delrowAction.setShortcut('Ctrl+Shift+r')
 		delrowAction.setStatusTip('Delete last row')
-		delrowAction.triggered.connect(lambda: self.del_row)
+		delrowAction.triggered.connect(lambda: self.del_row())
 
 		delcolAction = QAction('&Delete column', self)
 		delcolAction.setShortcut('Ctrl+Shift+C')
@@ -278,20 +278,26 @@ class DataBaseEditor(QMainWindow):
 
 	def add_row(self):
 		self.adding_row = RowWindow()
-		self.adding_row.ok.connect(self.table.setRowCount(int(self.table.rowCount()+1)))
-		self.adding_row.ok.connect(self.adding_row.close())
+		self.adding_row.ok.connect(self.ds_func)
+		self.adding_row.ko.connect(lambda: self.adding_row.close())
 		self.adding_row.exec_()
+	def ds_func(self):
+		self.table.setRowCount(int(self.table.rowCount()+1))
+		self.adding_row.close()
+
 	def del_row(self):
 		self.deling_row = RowWindow()
-		self.deling_row.ok.connect(self.table.setRowCount(int(self.table.rowCount()-1)))
-		self.deling_row.ok.connect(self.deling_row.close())
+		self.deling_row.ok.connect(self.sd_func)
+		self.deling_row.ko.connect(lambda: self.deling_row.close())
 		self.deling_row.exec_()
+	def sd_func(self):
+		self.table.setRowCount(int(self.table.rowCount()-1))
+		self.deling_row.close()
 	def add_col(self,s,t1,t2,t3,t4):
 		self.adding_col = ColumnWindow(1,s,t1,t2,t3,t4)
-		#self.adding_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()+1)))
 		self.adding_col.ok.connect(self.adding_colum)
 		self.adding_col.ko.connect(lambda: self.adding_col.close())
-		self.adding_col.err.connect(lambda: self.err.emit(str(e)))
+		self.adding_col.err.connect(lambda: self.show_err)
 		self.adding_col.exec_()
 
 	def adding_colum(self, col_name, t1, t2, t3,t4,s):
@@ -306,11 +312,28 @@ class DataBaseEditor(QMainWindow):
 		self.deling_col = ColumnWindow(0,s,t1,t2,t3,t4)
 		self.deling_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()-1)))
 		self.deling_col.ko.connect(lambda: self.deling_col.close())
-		self.deling_col.show()
-class RowWindow(QWidget):
+		self.deling_col.exec_()
+	def show_err(self, t):
+		self.erroring = LoginError(t)
+		self.erroring.cl.connect(lambda: self.erroring.close())
+		self.erroring.exec_()
+class RowWindow(QDialog):
 	ok=QtCore.pyqtSignal()
 	ko=QtCore.pyqtSignal()
 	def __init__(self):
+		QWidget.__init__(self)
+		self.setMaximumSize(QtCore.QSize(354, 133))
+		self.setMinimumSize(QtCore.QSize(354, 133))
+
+		self.label = QLabel('Are you sure?',self)
+		self.but1=QPushButton('Yes',self)
+		self.but2=QPushButton('No',self)
+		self.but1.clicked.connect(lambda: self.ok.emit())
+		self.but2.clicked.connect(lambda: self.ko.emit())
+		self.label.move(0,0)
+		self.but1.move(300, 25)
+		self.but2.move(300, 100)
+
 
 class ColumnWindow(QDialog):
     ok = QtCore.pyqtSignal(str, str, str, str, str, str)
@@ -440,7 +463,7 @@ class ColumnWindow(QDialog):
             	self.ok.emit(col_name, t1, t2, t3,t4,table_name)
             	self.ko.emit()
             except Exception as e:
-            	self.err.emit(e)
+            	self.err.emit(str(e))
 
 class Controller:
     def __init__(self):
@@ -486,7 +509,7 @@ class Controller:
     def show_err(self, t):
     	self.erroring = LoginError(t)
     	self.erroring.cl.connect(lambda: self.erroring.close())
-    	self.erroring.show()
+    	self.erroring.exec_()
 
 app = QApplication(sys.argv)
 screen = Controller()
