@@ -5,7 +5,7 @@ import sys
 import psycopg2
 #private one, dude#
 class Login(QWidget):
-	auth = QtCore.pyqtSignal(str, str, str, str)
+	auth = QtCore.pyqtSignal(str, str, str, str, str)
 	err = QtCore.pyqtSignal(str)
 	cl = QtCore.pyqtSignal()
 	def __init__(self):
@@ -29,6 +29,9 @@ class Login(QWidget):
 		self.pass_line = QLineEdit('', self)
 		self.pass_line.setEchoMode(QLineEdit.Password)
 
+		self.host_label = QLabel('Database host:', self)
+		self.host_line = QLineEdit('localhost', self)
+
 		self.port_label = QLabel('Database port:', self)
 		self.port_line = QLineEdit('5432', self)
 
@@ -47,8 +50,10 @@ class Login(QWidget):
 		self.userlogin_line.move(x2, 148)
 		self.pass_label.move(x1, 250)
 		self.pass_line.move(x2, 248)
-		self.port_label.move(x1, 350)
-		self.port_line.move(x2, 348)
+		self.host_label.move(x1, 350)
+		self.host_line.move(x2, 348)
+		self.port_label.move(x1, 400)
+		self.port_line.move(x2, 398)
 		self.connect_button.move(130, 450)
 		self.back_button.move(150, 550)
 
@@ -60,6 +65,8 @@ class Login(QWidget):
 		self.userlogin_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
 		self.pass_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.pass_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
+		self.host_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
+		self.host_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
 		self.port_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.port_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
 		self.connect_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
@@ -68,10 +75,13 @@ class Login(QWidget):
 		if len(str(self.dbname_line.text())) > 0:
 			if len(str(self.userlogin_line.text())) > 0:
 				if len(str(self.pass_line.text())) > 0:
-					if len(str(self.port_line.text())) > 0:
-						self.auth.emit(self.dbname_line.text(), self.userlogin_line.text(), self.pass_line.text(), self.port_line.text())
+					if len(str(self.host_line.text())) > 0:
+						if len(str(self.port_line.text())) > 0:
+							self.auth.emit(self.dbname_line.text(), self.userlogin_line.text(), self.pass_line.text(), self.port_line.text(), self.host_line.text())
+						else:
+							self.err.emit('Port line error: port line can\'t be emty!')
 					else:
-						self.err.emit('Port line error: port line can\'t be emty!')
+						self.err.emit('Host line error: port line can\'t be emty!')
 				else:
 					self.err.emit('Password line error: password line can\'t be emty!')
 			else:
@@ -82,8 +92,8 @@ class Login(QWidget):
 class Auth(QWidget):
 	back = QtCore.pyqtSignal()
 	err = QtCore.pyqtSignal(str)
-	conn1 = QtCore.pyqtSignal(str, str, str, str, str)
-	def __init__(self, t1, t2, t3, t4):
+	conn1 = QtCore.pyqtSignal(str, str, str, str, str, str)
+	def __init__(self, t1, t2, t3, t4,t5):
 		QWidget.__init__(self)
 		self.setWindowTitle('Table selection.')
 		self.setMaximumSize(QtCore.QSize(360, 640))
@@ -103,7 +113,7 @@ class Auth(QWidget):
 		self.back_button.clicked.connect(lambda: self.back.emit())
 
 		self.conn_button = QPushButton('Connect!', self)
-		self.conn_button.clicked.connect(lambda: self.conn(t1, t2, t3, t4))
+		self.conn_button.clicked.connect(lambda: self.conn(t1, t2, t3, t4,t5))
 
 		
 		x1 = 55
@@ -123,13 +133,13 @@ class Auth(QWidget):
 		self.conn_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
 		self.back_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 14px; color: white; font: bold "Times New Roman"; border-radius: 0px; min-width: 60; min-height: 24; max-width: 60; max-height: 24""")
 
-	def conn(self, t1, t2, t3, t4):
+	def conn(self, t1, t2, t3, t4,t5):
 		s = self.selecter_line.text()
 		try:
-			conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
+			conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4,host=t5)
 			cur_sql = conn.cursor()
 			cur_sql.execute('SELECT * FROM '+str(s))
-			self.conn1.emit(s, t1, t2, t3, t4)
+			self.conn1.emit(s, t1, t2, t3, t4,t5)
 		except Exception as e:
 			self.err.emit(str(e))
 
@@ -150,18 +160,18 @@ class LoginError(QDialog):
 		self.cl.emit()
 
 class DataBaseEditor(QMainWindow):
-	back = QtCore.pyqtSignal(str,str,str,str)
+	back = QtCore.pyqtSignal(str,str,str,str,str)
 	comm = QtCore.pyqtSignal()
 	err = QtCore.pyqtSignal(str)
-	def __init__(self, s, t1, t2, t3, t4):
+	def __init__(self, s, t1, t2, t3, t4,t5):
 		super().__init__()
 
-		self.showUI(s, t1, t2, t3, t4)
+		self.showUI(s, t1, t2, t3, t4,t5)
 
-	def showUI(self, s, t1, t2, t3, t4):
+	def showUI(self, s, t1, t2, t3, t4,t5):
 		
 
-		conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
+		conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4,host=t5)
 		cur_sql = conn.cursor()
 		cur_sql.execute('SELECT * FROM '+str(s))
 		db = cur_sql.fetchall()
@@ -214,12 +224,12 @@ class DataBaseEditor(QMainWindow):
 		backAction = QAction('&Back', self)
 		backAction.setShortcut('Ctrl+B')
 		backAction.setStatusTip('Change table')
-		backAction.triggered.connect(lambda: self.back.emit(t1, t2, t3, t4))
+		backAction.triggered.connect(lambda: self.back.emit(t1, t2, t3, t4,t5))
 
 		saveAction = QAction('&Save', self)
 		saveAction.setShortcut('Ctrl+S')
 		saveAction.setStatusTip('Save changes')
-		saveAction.triggered.connect(lambda: self.save_commiting_changes(s, t1, t2,t3,t4))
+		saveAction.triggered.connect(lambda: self.save_commiting_changes(s, t1, t2,t3,t4,t5))
 
 		menubar = self.menuBar()
 		menubar.setStyleSheet("""background: rgb(255, 255, 255); selection-background-color: rgb(145,201,247)""")
@@ -238,7 +248,7 @@ class DataBaseEditor(QMainWindow):
 		colAction = QAction('&Add column', self)
 		colAction.setShortcut('Ctrl+Alt+C')
 		colAction.setStatusTip('Add a new column')
-		colAction.triggered.connect(lambda: self.add_col(s,t1,t2,t3,t4))
+		colAction.triggered.connect(lambda: self.add_col(s,t1,t2,t3,t4,t5))
 
 		delrowAction = QAction('&Delete row', self)
 		delrowAction.setShortcut('Ctrl+Shift+r')
@@ -248,7 +258,7 @@ class DataBaseEditor(QMainWindow):
 		delcolAction = QAction('&Delete column', self)
 		delcolAction.setShortcut('Ctrl+Shift+C')
 		delcolAction.setStatusTip('Delete last column')
-		delcolAction.triggered.connect(lambda: self.del_col(s,t1,t2,t3,t4))
+		delcolAction.triggered.connect(lambda: self.del_col(s,t1,t2,t3,t4,t5))
 
 		editMenu = menubar.addMenu('&Edit')
 		editMenu.addAction(rowAction)
@@ -257,7 +267,56 @@ class DataBaseEditor(QMainWindow):
 		editMenu.addAction(delcolAction)
 		editMenu.setStyleSheet("""color: rgb(0,0,0); background-color: rgb(255,255,255)""")
 
-	def save_commiting_changes(self,s,t1,t2,t3,t4):
+
+	def add_row(self):
+		self.adding_row = RowWindow(1)
+		self.adding_row.ok.connect(self.ds_func)
+		self.adding_row.ko.connect(lambda: self.adding_row.close())
+		self.adding_row.exec_()
+	def ds_func(self):
+		self.table.setRowCount(int(self.table.rowCount()+1))
+		self.adding_row.close()
+
+	def del_row(self):
+		self.deling_row = RowWindow(0)
+		self.deling_row.ok.connect(self.sd_func)
+		self.deling_row.ko.connect(lambda: self.deling_row.close())
+		self.deling_row.exec_()
+	def sd_func(self):
+		self.table.setRowCount(int(self.table.rowCount()-1))
+		self.deling_row.close()
+
+
+
+	def add_col(self,s,t1,t2,t3,t4,t5):
+		try:
+			self.adding_col = ColumnWindow(1,s,t1,t2,t3,t4,t5)
+			self.adding_col.ok.connect(self.adding_colum)
+			self.adding_col.ko.connect(lambda: self.adding_col.close())
+			self.adding_col.err.connect(self.show_err)
+			self.adding_col.exec_()
+		except Exception:
+			self.show_err('Add_col error')
+
+	def adding_colum(self, col_name, t1, t2, t3,t4,t5,s):
+		try:
+			self.table.setColumnCount(int(self.table.columnCount()+1))
+			conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4,host=t5)
+			cur_sql = conn.cursor()
+			cur_sql.execute('SELECT * FROM '+str(s))
+			self.table.setHorizontalHeaderLabels([t[0] for t in cur_sql.description])
+		except Exception:
+			self.show_err('Adding column error')
+
+	def del_col(self,s,t1,t2,t3,t4,t5):
+		self.deling_col = ColumnWindow(0,s,t1,t2,t3,t4,t5)
+		self.deling_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()-1)))
+		self.deling_col.ko.connect(lambda: self.deling_col.close())
+		self.deling_col.err.connect(self.show_err)
+		self.deling_col.exec_()
+
+
+	def save_commiting_changes(self,s,t1,t2,t3,t4,t5):
 		try:
 			mas = []
 			a, b = self.table.rowCount(), self.table.columnCount()
@@ -266,7 +325,7 @@ class DataBaseEditor(QMainWindow):
 				for j in range(b):
 					st+='\''+str(self.table.item(i, j).text())+'\', '
 				mas+=[st[0:-2]]
-			conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
+			conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4,host=t5)
 			cur_sql = conn.cursor()
 			cur_sql.execute('DELETE FROM '+str(s))
 			for i in range(len(mas)):
@@ -276,54 +335,28 @@ class DataBaseEditor(QMainWindow):
 		except Exception as e:
 			self.err.emit(str(e))
 
-	def add_row(self):
-		self.adding_row = RowWindow()
-		self.adding_row.ok.connect(self.ds_func)
-		self.adding_row.ko.connect(lambda: self.adding_row.close())
-		self.adding_row.exec_()
-	def ds_func(self):
-		self.table.setRowCount(int(self.table.rowCount()+1))
-		self.adding_row.close()
-
-	def del_row(self):
-		self.deling_row = RowWindow()
-		self.deling_row.ok.connect(self.sd_func)
-		self.deling_row.ko.connect(lambda: self.deling_row.close())
-		self.deling_row.exec_()
-	def sd_func(self):
-		self.table.setRowCount(int(self.table.rowCount()-1))
-		self.deling_row.close()
-	def add_col(self,s,t1,t2,t3,t4):
-		self.adding_col = ColumnWindow(1,s,t1,t2,t3,t4)
-		self.adding_col.ok.connect(self.adding_colum)
-		self.adding_col.ko.connect(lambda: self.adding_col.close())
-		self.adding_col.err.connect(lambda: self.show_err)
-		self.adding_col.exec_()
-
-	def adding_colum(self, col_name, t1, t2, t3,t4,s):
-		self.table.setColumnCount(int(self.table.columnCount()+1))
-		conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
-		cur_sql = conn.cursor()
-		cur_sql.execute('SELECT * FROM '+str(s))
-		self.table.setHorizontalHeaderLabels([t[0] for t in cur_sql.description])
-
-
-	def del_col(self,s,t1,t2,t3,t4):
-		self.deling_col = ColumnWindow(0,s,t1,t2,t3,t4)
-		self.deling_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()-1)))
-		self.deling_col.ko.connect(lambda: self.deling_col.close())
-		self.deling_col.exec_()
 	def show_err(self, t):
-		self.erroring = LoginError(t)
-		self.erroring.cl.connect(lambda: self.erroring.close())
-		self.erroring.exec_()
+		try:
+			self.erroring = LoginError(t)
+			self.erroring.cl.connect(lambda: self.erroring.close())
+			self.erroring.exec_()
+		except Exception as e:
+			print('show_err error: '+str(e))
+
+
+
 class RowWindow(QDialog):
 	ok=QtCore.pyqtSignal()
 	ko=QtCore.pyqtSignal()
-	def __init__(self):
+	def __init__(self, a):
 		QWidget.__init__(self)
 		self.setMaximumSize(QtCore.QSize(354, 133))
 		self.setMinimumSize(QtCore.QSize(354, 133))
+
+		if a == 1:
+			self.setWindowTitle('Adding a row')
+		else:
+			self.setWindowTitle('Deleting a row')
 
 		self.label = QLabel('Are you sure?',self)
 		self.but1=QPushButton('Yes',self)
@@ -336,10 +369,10 @@ class RowWindow(QDialog):
 
 
 class ColumnWindow(QDialog):
-    ok = QtCore.pyqtSignal(str, str, str, str, str, str)
+    ok = QtCore.pyqtSignal(str, str, str, str, str, str, str)
     ko = QtCore.pyqtSignal()
     err = QtCore.pyqtSignal(str)
-    def __init__(self,a,s,t1,t2,t3,t4):
+    def __init__(self,a,s,t1,t2,t3,t4,t5):
         QDialog.__init__(self)
         self.setMaximumSize(QtCore.QSize(480, 640))
         self.setMinimumSize(QtCore.QSize(480, 640))
@@ -422,25 +455,25 @@ class ColumnWindow(QDialog):
         self.ko_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
         
         if a == 1:
-        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(),self.col_type.currentText(),t1,t2,t3,t4,s,self.n_null.currentText(),self.p_k.currentText(),self.def_line.text()))
+        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(),self.col_type.currentText(),t1,t2,t3,t4,t5,s,self.n_null.currentText(),self.p_k.currentText(),self.def_line.text()))
         elif a == 0:
-        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(),0,t1,t2,t3,t4,s,'','',''))
+        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(),0,t1,t2,t3,t4,t5,s,'','',''))
         self.ko_button.clicked.connect(lambda: self.ko.emit())
         
 
 
-    def do_do(self, col_name, col_type, t1, t2, t3, t4,table_name,nn,pk,def_value):
+    def do_do(self, col_name, col_type, t1, t2, t3, t4,t5,table_name,nn,pk,def_value):
         if col_type == 0:
             try:
-                conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
+                conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4,host=t5)
                 cur_sql = conn.cursor()
                 s = 'ALTER TABLE '+table_name+' DROP COLUMN '+col_name
                 cur_sql.execute(s)
                 conn.commit()
-                self.ok.emit(col_name, t1, t2, t3,t4,table_name)
+                self.ok.emit(col_name, t1, t2, t3,t4,t5,table_name)
                 self.ko.emit()
             except Exception as e:
-                self.err.emit(e)
+                self.err.emit(str(e))
 
         else:
             try:
@@ -454,13 +487,12 @@ class ColumnWindow(QDialog):
             		nn = ''
             	if def_value == 'Default value' or def_value == '':
             		def_value = '0'
-            		pass
-            	conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
+            	conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4,host=t5)
             	cur_sql = conn.cursor()
             	s = 'ALTER TABLE '+table_name+' ADD COLUMN '+col_name+' '+col_type+' default '+def_value+' '+nn+' '+pk
             	cur_sql.execute(s)
             	conn.commit()
-            	self.ok.emit(col_name, t1, t2, t3,t4,table_name)
+            	self.ok.emit(col_name, t1, t2, t3,t4,t5,table_name)
             	self.ko.emit()
             except Exception as e:
             	self.err.emit(str(e))
@@ -483,14 +515,14 @@ class Controller:
         except AttributeError:
         	pass
         self.login.show()
-    def show_auth(self, t1, t2, t3, t4):
+    def show_auth(self, t1, t2, t3, t4, t5):
     	try:
     		self.db.close()
     	except AttributeError:
     		pass
     	try:
-    		conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4)
-    		self.auth = Auth(t1, t2, t3, t4)
+    		conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4, host=t5)
+    		self.auth = Auth(t1, t2, t3, t4, t5)
     		self.login.close()
     		self.auth.back.connect(self.show_login)
     		self.auth.err.connect(self.show_err)
@@ -499,8 +531,8 @@ class Controller:
     	except Exception as t:
     		self.show_err(str(t))
         
-    def show_db(self, s, t1, t2, t3, t4):
-    	self.db = DataBaseEditor(s, t1, t2, t3, t4)
+    def show_db(self, s, t1, t2, t3, t4,t5):
+    	self.db = DataBaseEditor(s, t1, t2, t3, t4,t5)
     	self.auth.close()
     	self.db.show()
     	self.db.back.connect(self.show_auth)
