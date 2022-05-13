@@ -71,6 +71,7 @@ class Login(QWidget):
 		self.port_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
 		self.connect_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
 		self.back_button.setStyleSheet("""text-decoration: underline; background-color: rgb(75, 105, 240); font-size: 14px; color: white; font: bold "Times New Roman"; border-radius: 0px; min-width: 60; min-height: 24; max-width: 60; max-height: 24""")
+	
 	def connect(self):
 		if len(str(self.dbname_line.text())) > 0:
 			if len(str(self.userlogin_line.text())) > 0:
@@ -88,6 +89,7 @@ class Login(QWidget):
 				self.err.emit('Login line error: login line can\'t be empty!')
 		else:
 			self.err.emit('Database name error: Database name line can\'t be empty!')
+
 
 class Auth(QWidget):
 	back = QtCore.pyqtSignal()
@@ -114,7 +116,6 @@ class Auth(QWidget):
 
 		self.conn_button = QPushButton('Connect!', self)
 		self.conn_button.clicked.connect(lambda: self.conn(t1, t2, t3, t4,t5))
-
 		
 		x1 = 55
 		x2 = 155
@@ -124,7 +125,6 @@ class Auth(QWidget):
 		self.selecter_line.move(x2, 50)
 		self.conn_button.move(130, 450)
 		self.back_button.move(150, 550)
-
 
 		self.main_label.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 24px; color: rgb(255, 255, 255); font: bold "Times New Roman"; border-radius: 5px; min-width: 360; min-height: 30; max-width: 360; max-height: 30""")
 		self.frame.setStyleSheet("""background-color: rgb(255, 255, 255); min-height: 480; min-width: 270; border-radius: 8px """)
@@ -143,21 +143,6 @@ class Auth(QWidget):
 		except Exception as e:
 			self.err.emit(str(e))
 
-class LoginError(QDialog):
-	cl = QtCore.pyqtSignal()
-	def __init__(self, t):
-		QWidget.__init__(self)
-		self.setWindowIcon(QIcon('python.ico'))
-		layout = QGridLayout()
-		self.setWindowTitle('Error')
-		self.label = QLabel(t)
-		layout.addWidget(self.label)
-		self.button = QPushButton('Ok')
-		self.button.clicked.connect(self.clact)
-		layout.addWidget(self.button)
-		self.setLayout(layout)
-	def clact(self):
-		self.cl.emit()
 
 class DataBaseEditor(QMainWindow):
 	back = QtCore.pyqtSignal(str,str,str,str,str)
@@ -496,6 +481,24 @@ class ColumnWindow(QDialog):
             	self.ko.emit()
             except Exception as e:
             	self.err.emit(str(e))
+
+
+class LoginError(QDialog):
+	cl = QtCore.pyqtSignal()
+	def __init__(self, t):
+		QWidget.__init__(self)
+		self.setWindowIcon(QIcon('python.ico'))
+		layout = QGridLayout()
+		self.setWindowTitle('Error')
+		self.label = QLabel(t)
+		layout.addWidget(self.label)
+		self.button = QPushButton('Ok')
+		self.button.clicked.connect(self.clact)
+		layout.addWidget(self.button)
+		self.setLayout(layout)
+	def clact(self):
+		self.cl.emit()
+
 
 class Controller:
     def __init__(self):
