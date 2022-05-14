@@ -335,22 +335,28 @@ class RowWindow(QDialog):
 	ko=QtCore.pyqtSignal()
 	def __init__(self, a):
 		QWidget.__init__(self)
-		self.setMaximumSize(QtCore.QSize(354, 133))
-		self.setMinimumSize(QtCore.QSize(354, 133))
+		self.setMaximumSize(QtCore.QSize(352, 123))
+		self.setMinimumSize(QtCore.QSize(352, 123))
 
 		if a == 1:
 			self.setWindowTitle('Adding a row')
 		else:
 			self.setWindowTitle('Deleting a row')
 
+		self.framerow = QFrame(self)
+		self.framerow.setStyleSheet("""max-width:352; min-width:352; max-height:83; min-height:83; background-color: rgb(255,255,255)""")
+
 		self.label = QLabel('Are you sure?',self)
+		self.label.setStyleSheet("""font-size: 15px; color: rgb(0,51,188); font: 'Arial'""")
+
 		self.but1=QPushButton('Yes',self)
 		self.but2=QPushButton('No',self)
 		self.but1.clicked.connect(lambda: self.ok.emit())
 		self.but2.clicked.connect(lambda: self.ko.emit())
-		self.label.move(0,0)
-		self.but1.move(300, 25)
-		self.but2.move(300, 100)
+		self.framerow.move(0,0)
+		self.label.move(11,12)
+		self.but1.move(50, 100)
+		self.but2.move(250, 100)
 
 
 class ColumnWindow(QDialog):
@@ -377,6 +383,7 @@ class ColumnWindow(QDialog):
         	self.col_type.addItem('text')
         	self.col_type.addItem('integer')
         	self.col_type.addItem('char')
+        	self.col_type.addItem('bool')
 
         	self.n_null_label = QLabel('Not null? ',self)
         	self.n_null = QComboBox(self)
