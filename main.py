@@ -283,19 +283,62 @@ class DataBaseEditor(QMainWindow):
 		except Exception:
 			self.show_err('Add_col error')
 
-	def adding_colum(self, col_name, t1, t2, t3,t4,t5,s):
+	def adding_colum(self, col_name, t1, t2, t3,t4,t5,s,default):
 		try:
 			self.table.setColumnCount(int(self.table.columnCount()+1))
 			conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4,host=t5)
 			cur_sql = conn.cursor()
 			cur_sql.execute('SELECT * FROM '+str(s))
+			db = cur_sql.fetchall()
+			a = 0
+			b = 0
+			for hor in db:
+				a+=1
+				if a == 1:
+					for ver in hor:
+						b+=1
 			self.table.setHorizontalHeaderLabels([t[0] for t in cur_sql.description])
+			for i in range(b+2):
+				self.table.setItem(i,b-1, QTableWidgetItem(str(default)))
+			self.table.resizeColumnsToContents()
 		except Exception:
 			self.show_err('Adding column error')
 
+	def deling_colum(self, col_name, t1, t2, t3,t4,t5,s,default):
+		try:
+			conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4,host=t5)
+			cur_sql = conn.cursor()
+			cur_sql.execute('SELECT * FROM '+str(s))
+			db = cur_sql.fetchall()
+			a = 0
+			b = 0
+			for hor in db:
+				a+=1
+				if a == 1:
+					for ver in hor:
+						b+=1
+
+			self.table.setColumnCount(b)
+			self.table.setRowCount(a)
+			self.table.setMinimumWidth(740)
+			self.table.setMinimumHeight(500)
+			self.table.move(30, 50)
+			column_names = [t[0] for t in cur_sql.description]
+			self.table.setHorizontalHeaderLabels(column_names)
+			a = 0
+			for hor in db:
+				b = 0
+				for ver in hor:
+					self.table.setItem(a, b, QTableWidgetItem(str(ver)))
+					b+=1
+				a+=1
+			self.table.resizeColumnsToContents()
+		except Exception:
+			self.show_err('Deling column error')
+
 	def del_col(self,s,t1,t2,t3,t4,t5):
 		self.deling_col = ColumnWindow(0,s,t1,t2,t3,t4,t5)
-		self.deling_col.ok.connect(lambda: self.table.setColumnCount(int(self.table.columnCount()-1)))
+		self.deling_col.ok.connect(self.deling_colum)
 		self.deling_col.ko.connect(lambda: self.deling_col.close())
 		self.deling_col.err.connect(self.show_err)
 		self.deling_col.exec_()
@@ -362,13 +405,13 @@ class RowWindow(QDialog):
 
 
 class ColumnWindow(QDialog):
-    ok = QtCore.pyqtSignal(str, str, str, str, str, str, str)
+    ok = QtCore.pyqtSignal(str, str, str, str, str, str, str, str)
     ko = QtCore.pyqtSignal()
     err = QtCore.pyqtSignal(str)
     def __init__(self,a,s,t1,t2,t3,t4,t5):
         QDialog.__init__(self)
-		self.setMaximumSize(QtCore.QSize(370, 120))
-		self.setMinimumSize(QtCore.QSize(370, 120))
+        self.setMaximumSize(QtCore.QSize(370, 120))
+        self.setMinimumSize(QtCore.QSize(370, 120))
         if a == 1:
         	self.setWindowTitle('Adding a new column')
 
@@ -382,34 +425,21 @@ class ColumnWindow(QDialog):
         	self.col_type.addItem('char')
         	self.col_type.addItem('bool')
 
-			self.n_null = QCheckBox("Not null?", self)
-			self.n_null.setChecked(True)
-			self.p_k = QCheckBox("Primary key?", self)
+        	self.n_null = QCheckBox("Not null?", self)
+        	self.n_null.setChecked(True)
+        	self.p_k = QCheckBox("Primary key?", self)
 
         	self.def_line_label = QLabel('Default value of column',self)
         	self.def_line = QLineEdit('Default value', self)
 
-        	x1 = 55
-        	x2 = 285
-        	x3 = 72+x2
-        	self.main_label.move(0, 0)
-        	self.col_line_label.move(5, 10)
+        	self.col_line_label.move(5, 12)
         	self.col_line.move(43, 10)
-        	self.col_type_label.move(281, 8)
-        	self.col_type.move(x3, 148)
-        	self.n_null.move(5, 100)
-        	self.p_k.move(5, 126)
+        	self.col_type_label.move(5, 42)
+        	self.col_type.move(43, 40)
+        	self.n_null.move(5, 75)
+        	self.p_k.move(5, 100)
         	self.def_line_label.move(160,75)
         	self.def_line.move(160, 95)
-
-        	self.col_type.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
-        	self.col_type_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
-        	self.n_null.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
-        	self.n_null_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
-        	self.p_k.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
-        	self.p_k_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
-        	self.def_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
-        	self.def_line_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
 
         else:
         	self.setWindowTitle('Deleting column')
@@ -421,14 +451,20 @@ class ColumnWindow(QDialog):
         self.ok_button = QPushButton('Continue', self)
         self.ko_button = QPushButton('Cancel', self)
         self.ok_button.move(281, 8)
-        self.ko_button.move(300, 450)
-        self.col_line_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
-        self.col_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
+        self.ko_button.move(281, 36)
         self.ok_button.setStyleSheet("""min-width: 77; min-height: 20; max-width: 77; max-height: 20""")
         self.ko_button.setStyleSheet("""min-width: 77; min-height: 20; max-width: 77; max-height: 20""")
         
         if a == 1:
-        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(),self.col_type.currentText(),t1,t2,t3,t4,t5,s,self.n_null.currentText(),self.p_k.currentText(),self.def_line.text()))
+        	if self.n_null.isChecked():
+        		self.n_null = 'Yes'
+        	else:
+        		self.n_null = 'No'
+        	if self.p_k.isChecked():
+        		self.p_k = 'Yes'
+        	else:
+        		self.p_k = 'No'
+        	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(),self.col_type.currentText(),t1,t2,t3,t4,t5,s,self.n_null,self.p_k,self.def_line.text()))
         elif a == 0:
         	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(),0,t1,t2,t3,t4,t5,s,'','',''))
         self.ko_button.clicked.connect(lambda: self.ko.emit())
@@ -443,7 +479,7 @@ class ColumnWindow(QDialog):
                 s = 'ALTER TABLE '+table_name+' DROP COLUMN '+col_name
                 cur_sql.execute(s)
                 conn.commit()
-                self.ok.emit(col_name, t1, t2, t3,t4,t5,table_name)
+                self.ok.emit(col_name, t1, t2, t3,t4,t5,table_name,def_value)
                 self.ko.emit()
             except Exception as e:
                 self.err.emit(str(e))
@@ -460,12 +496,16 @@ class ColumnWindow(QDialog):
             		nn = ''
             	if def_value == 'Default value' or def_value == '':
             		def_value = '0'
+            	if def_value == 'true':
+            		def_value = 'True'
+            	if def_value == 'false':
+            		def_value = 'False'
             	conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4,host=t5)
             	cur_sql = conn.cursor()
-            	s = 'ALTER TABLE '+table_name+' ADD COLUMN '+col_name+' '+col_type+' default '+def_value+' '+nn+' '+pk
+            	s = 'ALTER TABLE '+table_name+' ADD COLUMN '+col_name+' '+col_type+' default \''+def_value+'\' '+nn+' '+pk
             	cur_sql.execute(s)
             	conn.commit()
-            	self.ok.emit(col_name, t1, t2, t3,t4,t5,table_name)
+            	self.ok.emit(col_name, t1, t2, t3,t4,t5,table_name, def_value)
             	self.ko.emit()
             except Exception as e:
             	self.err.emit(str(e))
