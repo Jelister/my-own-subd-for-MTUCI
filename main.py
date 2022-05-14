@@ -4,12 +4,15 @@ from PyQt5.QtGui import QIcon
 import sys
 import psycopg2
 #private one, dude#
-class Login(QWidget):
+class Login(QMainWindow):
 	auth = QtCore.pyqtSignal(str, str, str, str, str)
 	err = QtCore.pyqtSignal(str)
 	cl = QtCore.pyqtSignal()
+
 	def __init__(self):
 		QWidget.__init__(self)
+
+		self.showUI()
 		self.setWindowTitle('Authorization')
 		self.setMaximumSize(QtCore.QSize(360, 640))
 		self.setMinimumSize(QtCore.QSize(360, 640))
@@ -41,7 +44,7 @@ class Login(QWidget):
 		self.back_button = QPushButton('Cancel', self)
 		self.back_button.clicked.connect(lambda: self.cl.emit())
 		x1 = 55
-		x2 = 155
+		x2 = 205
 		self.main_label.move(0, 0)
 		self.frame.move(x1-10, 35)
 		self.dbname_label.move(x1, 50)
@@ -71,7 +74,20 @@ class Login(QWidget):
 		self.port_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
 		self.connect_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
 		self.back_button.setStyleSheet("""text-decoration: underline; background-color: rgb(75, 105, 240); font-size: 14px; color: white; font: bold "Times New Roman"; border-radius: 0px; min-width: 60; min-height: 24; max-width: 60; max-height: 24""")
-	
+		
+	def showUI(self):
+
+		self.statusBar()
+
+		menubar = self.menuBar()
+
+		exitAction = QAction('&Exit', self)
+		exitAction.setShortcut('Ctrl+Q')
+		exitAction.triggered.connect(qApp.quit)
+
+		fileMenu = menubar.addMenu('&File')
+		fileMenu.addAction(exitAction)
+
 	def connect(self):
 		if len(str(self.dbname_line.text())) > 0:
 			if len(str(self.userlogin_line.text())) > 0:
@@ -117,12 +133,10 @@ class Auth(QWidget):
 		self.conn_button = QPushButton('Connect!', self)
 		self.conn_button.clicked.connect(lambda: self.conn(t1, t2, t3, t4,t5))
 		
-		x1 = 55
-		x2 = 155
 		self.main_label.move(0, 0)
-		self.frame.move(x1-10, 35)
-		self.selecter_label.move(x1, 50)
-		self.selecter_line.move(x2, 50)
+		self.frame.move(45, 35)
+		self.selecter_label.move(55, 50)
+		self.selecter_line.move(155, 50)
 		self.conn_button.move(130, 450)
 		self.back_button.move(150, 550)
 
@@ -132,6 +146,13 @@ class Auth(QWidget):
 		self.selecter_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.conn_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
 		self.back_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 14px; color: white; font: bold "Times New Roman"; border-radius: 0px; min-width: 60; min-height: 24; max-width: 60; max-height: 24""")
+
+		exitAction = QAction('&Exit', self)
+		exitAction.setShortcut('Ctrl+Q')
+		exitAction.triggered.connect(qApp.quit)
+		backAction = QAction('&Back', self)
+		backAction.setShortcut('Ctrl+B')
+		backAction.triggered.connect(lambda: self.back.emit())
 
 	def conn(self, t1, t2, t3, t4,t5):
 		s = self.selecter_line.text()
@@ -190,9 +211,12 @@ class DataBaseEditor(QMainWindow):
 		self.table.setMinimumWidth(740)
 		self.table.setMinimumHeight(500)
 		self.table.move(30, 50)
+
 		column_names = [t[0] for t in cur_sql.description]
+
 		self.table.setHorizontalHeaderLabels(column_names) 
 		self.table.setStyleSheet("""border-radius: 0px; background-color: rgb(255, 255, 255); background: rgb(255, 255, 255); border-color: rgb(255,255,255); outline-color: rgb(255,255,255); color: rgb(0, 0, 0)""")
+
 		a = 0
 		for hor in db:
 			b = 0
@@ -210,7 +234,6 @@ class DataBaseEditor(QMainWindow):
 		backAction.setShortcut('Ctrl+B')
 		backAction.setStatusTip('Change table')
 		backAction.triggered.connect(lambda: self.back.emit(t1, t2, t3, t4,t5))
-
 		saveAction = QAction('&Save', self)
 		saveAction.setShortcut('Ctrl+S')
 		saveAction.setStatusTip('Save changes')
@@ -258,6 +281,7 @@ class DataBaseEditor(QMainWindow):
 		self.adding_row.ok.connect(self.ds_func)
 		self.adding_row.ko.connect(lambda: self.adding_row.close())
 		self.adding_row.exec_()
+
 	def ds_func(self):
 		self.table.setRowCount(int(self.table.rowCount()+1))
 		self.adding_row.close()
@@ -267,6 +291,7 @@ class DataBaseEditor(QMainWindow):
 		self.deling_row.ok.connect(self.sd_func)
 		self.deling_row.ko.connect(lambda: self.deling_row.close())
 		self.deling_row.exec_()
+
 	def sd_func(self):
 		self.table.setRowCount(int(self.table.rowCount()-1))
 		self.deling_row.close()
@@ -290,6 +315,7 @@ class DataBaseEditor(QMainWindow):
 			cur_sql = conn.cursor()
 			cur_sql.execute('SELECT * FROM '+str(s))
 			db = cur_sql.fetchall()
+
 			a = 0
 			b = 0
 			for hor in db:
@@ -297,10 +323,14 @@ class DataBaseEditor(QMainWindow):
 				if a == 1:
 					for ver in hor:
 						b+=1
+
 			self.table.setHorizontalHeaderLabels([t[0] for t in cur_sql.description])
+
 			for i in range(b+2):
 				self.table.setItem(i,b-1, QTableWidgetItem(str(default)))
+
 			self.table.resizeColumnsToContents()
+
 		except Exception:
 			self.show_err('Adding column error')
 
@@ -524,6 +554,12 @@ class LoginError(QDialog):
 		self.button.clicked.connect(self.clact)
 		layout.addWidget(self.button)
 		self.setLayout(layout)
+		exitAction = QAction('&Exit', self)
+		exitAction.setShortcut('Ctrl+Q')
+		exitAction.triggered.connect(qApp.quit)
+		exitAction = QAction('&Back', self)
+		exitAction.setShortcut('Ctrl+B')
+		exitAction.triggered.connect(qApp.quit)
 	def clact(self):
 		self.cl.emit()
 
