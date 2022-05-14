@@ -106,7 +106,6 @@ class Login(QMainWindow):
 		else:
 			self.err.emit('Database name error: Database name line can\'t be empty!')
 
-
 class Auth(QWidget):
 	back = QtCore.pyqtSignal()
 	err = QtCore.pyqtSignal(str)
@@ -164,7 +163,6 @@ class Auth(QWidget):
 		except Exception as e:
 			self.err.emit(str(e))
 
-
 class DataBaseEditor(QMainWindow):
 	back = QtCore.pyqtSignal(str,str,str,str,str)
 	comm = QtCore.pyqtSignal()
@@ -175,14 +173,12 @@ class DataBaseEditor(QMainWindow):
 		self.showUI(s, t1, t2, t3, t4,t5)
 
 	def showUI(self, s, t1, t2, t3, t4,t5):
-		
 
 		conn = psycopg2.connect(dbname=t1, user=t2, password=t3, port=t4,host=t5)
 		cur_sql = conn.cursor()
 		cur_sql.execute('SELECT * FROM '+str(s))
 		db = cur_sql.fetchall()
 
-		
 		self.setWindowTitle(str(s)+' database Editor')
 		self.setMaximumSize(QtCore.QSize(800, 600))
 		self.setMinimumSize(QtCore.QSize(800, 600))
@@ -275,7 +271,6 @@ class DataBaseEditor(QMainWindow):
 		editMenu.addAction(delcolAction)
 		editMenu.setStyleSheet("""color: rgb(0,0,0); background-color: rgb(255,255,255)""")
 
-
 	def add_row(self):
 		self.adding_row = RowWindow(1)
 		self.adding_row.ok.connect(self.ds_func)
@@ -295,8 +290,6 @@ class DataBaseEditor(QMainWindow):
 	def sd_func(self):
 		self.table.setRowCount(int(self.table.rowCount()-1))
 		self.deling_row.close()
-
-
 
 	def add_col(self,s,t1,t2,t3,t4,t5):
 		try:
@@ -373,7 +366,6 @@ class DataBaseEditor(QMainWindow):
 		self.deling_col.err.connect(self.show_err)
 		self.deling_col.exec_()
 
-
 	def save_commiting_changes(self,s,t1,t2,t3,t4,t5):
 		try:
 			mas = []
@@ -400,8 +392,6 @@ class DataBaseEditor(QMainWindow):
 			self.erroring.exec_()
 		except Exception as e:
 			print('show_err error: '+str(e))
-
-
 
 class RowWindow(QDialog):
 	ok=QtCore.pyqtSignal()
@@ -498,8 +488,6 @@ class ColumnWindow(QDialog):
         elif a == 0:
         	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(),0,t1,t2,t3,t4,t5,s,'','',''))
         self.ko_button.clicked.connect(lambda: self.ko.emit())
-        
-
 
     def do_do(self, col_name, col_type, t1, t2, t3, t4,t5,table_name,nn,pk,def_value):
         if col_type == 0:
