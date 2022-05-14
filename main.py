@@ -344,19 +344,21 @@ class RowWindow(QDialog):
 			self.setWindowTitle('Deleting a row')
 
 		self.framerow = QFrame(self)
-		self.framerow.setStyleSheet("""max-width:352; min-width:352; max-height:83; min-height:83; background-color: rgb(255,255,255)""")
+		self.framerow.setStyleSheet("""max-width:352; min-width:352; max-height:82; min-height:82; background-color: rgb(255,255,255)""")
 
 		self.label = QLabel('Are you sure?',self)
 		self.label.setStyleSheet("""font-size: 15px; color: rgb(0,51,188); font: 'Arial'""")
 
-		self.but1=QPushButton('Yes',self)
-		self.but2=QPushButton('No',self)
+		self.but1=QPushButton('Continue',self)
+		self.but1.setStyleSheet("""max-width:110; min-width:110; max-height:21; min-height:21""")
+		self.but2=QPushButton('Cancel',self)
+		self.but2.setStyleSheet("""max-width:78; min-width:78; max-height:21; min-height:21""")
 		self.but1.clicked.connect(lambda: self.ok.emit())
 		self.but2.clicked.connect(lambda: self.ko.emit())
 		self.framerow.move(0,0)
 		self.label.move(11,12)
-		self.but1.move(50, 100)
-		self.but2.move(250, 100)
+		self.but1.move(142, 91)
+		self.but2.move(260, 91)
 
 
 class ColumnWindow(QDialog):
@@ -365,35 +367,24 @@ class ColumnWindow(QDialog):
     err = QtCore.pyqtSignal(str)
     def __init__(self,a,s,t1,t2,t3,t4,t5):
         QDialog.__init__(self)
-        self.setMaximumSize(QtCore.QSize(480, 640))
-        self.setMinimumSize(QtCore.QSize(480, 640))
-        self.setStyleSheet("""background: rgb(75, 105, 240)""")
-        self.frame =QFrame(self)
-        self.frame.move(45, 35)
-
+		self.setMaximumSize(QtCore.QSize(370, 120))
+		self.setMinimumSize(QtCore.QSize(370, 120))
         if a == 1:
         	self.setWindowTitle('Adding a new column')
-        	self.main_label = QLabel('<p align="center">Adding column.</p>', self)
 
         	self.col_line = QLineEdit('', self)
-        	self.col_line_label = QLabel('Name of the new column:',self)
+        	self.col_line_label = QLabel('Name:',self)
 
-        	self.col_type_label = QLabel('Type of the new column:',self)
+        	self.col_type_label = QLabel('Type:',self)
         	self.col_type = QComboBox(self)
         	self.col_type.addItem('text')
         	self.col_type.addItem('integer')
         	self.col_type.addItem('char')
         	self.col_type.addItem('bool')
 
-        	self.n_null_label = QLabel('Not null? ',self)
-        	self.n_null = QComboBox(self)
-        	self.n_null.addItem('Yes')
-        	self.n_null.addItem('No')
-
-        	self.p_k_label = QLabel('Primary key? ',self)
-        	self.p_k = QComboBox(self)
-        	self.p_k.addItem('No')
-        	self.p_k.addItem('Yes')
+			self.n_null = QCheckBox("Not null?", self)
+			self.n_null.setChecked(True)
+			self.p_k = QCheckBox("Primary key?", self)
 
         	self.def_line_label = QLabel('Default value of column',self)
         	self.def_line = QLineEdit('Default value', self)
@@ -402,16 +393,14 @@ class ColumnWindow(QDialog):
         	x2 = 285
         	x3 = 72+x2
         	self.main_label.move(0, 0)
-        	self.col_line_label.move(x1, 50)
-        	self.col_line.move(x2, 48)
-        	self.col_type_label.move(x1, 150)
+        	self.col_line_label.move(5, 10)
+        	self.col_line.move(43, 10)
+        	self.col_type_label.move(281, 8)
         	self.col_type.move(x3, 148)
-        	self.n_null_label.move(x1, 250)
-        	self.n_null.move(x3, 248)
-        	self.p_k_label.move(x1, 350)
-        	self.p_k.move(x3, 348)
-        	self.def_line_label.move(x1,400)
-        	self.def_line.move(x2, 398)
+        	self.n_null.move(5, 100)
+        	self.p_k.move(5, 126)
+        	self.def_line_label.move(160,75)
+        	self.def_line.move(160, 95)
 
         	self.col_type.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
         	self.col_type_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
@@ -424,27 +413,19 @@ class ColumnWindow(QDialog):
 
         else:
         	self.setWindowTitle('Deleting column')
-        	self.col_line_label = QLabel('Name of the column to delete:',self)
+        	self.col_line_label = QLabel('Name:',self)
         	self.col_line = QLineEdit('', self)
-        	self.main_label = QLabel('<p align="center">Deleting column.</p>', self)
+        	self.col_line_label.move(5, 10)
+        	self.col_line.move(43, 10)
 
-        	x1 = 55
-        	x2 = 285
-        	self.main_label.move(0, 0)
-        	self.frame.move(x1-10, 35)
-        	self.col_line_label.move(x1, 50)
-        	self.col_line.move(x2, 48)
-
-        self.ok_button = QPushButton('Ok', self)
+        self.ok_button = QPushButton('Continue', self)
         self.ko_button = QPushButton('Cancel', self)
-        self.ok_button.move(80, 450)
+        self.ok_button.move(281, 8)
         self.ko_button.move(300, 450)
         self.col_line_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
         self.col_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
-        self.main_label.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 24px; color: rgb(255, 255, 255); font: bold "Times New Roman"; border-radius: 5px; min-width: 480; min-height: 30; max-width: 480; max-height: 30""")
-        self.frame.setStyleSheet("""background-color: rgb(255, 255, 255); min-height: 480; min-width: 390; border-radius: 8px """)
-        self.ok_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
-        self.ko_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
+        self.ok_button.setStyleSheet("""min-width: 77; min-height: 20; max-width: 77; max-height: 20""")
+        self.ko_button.setStyleSheet("""min-width: 77; min-height: 20; max-width: 77; max-height: 20""")
         
         if a == 1:
         	self.ok_button.clicked.connect(lambda: self.do_do(self.col_line.text(),self.col_type.currentText(),t1,t2,t3,t4,t5,s,self.n_null.currentText(),self.p_k.currentText(),self.def_line.text()))
