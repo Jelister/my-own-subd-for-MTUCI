@@ -1,9 +1,9 @@
+#Dude, this purty sucks. I'm f%$#ing hate this people. - Tony
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon
 import sys
 import psycopg2
-#private one, dude#
 class Login(QMainWindow):
 	auth = QtCore.pyqtSignal(str, str, str, str, str)
 	err = QtCore.pyqtSignal(str)
@@ -17,7 +17,7 @@ class Login(QMainWindow):
 		self.setMaximumSize(QtCore.QSize(360, 640))
 		self.setMinimumSize(QtCore.QSize(360, 640))
 		self.setStyleSheet("""background-color: rgb(75, 105, 240) """)
-		self.setWindowIcon(QIcon('python.ico'))
+		self.setWindowIcon(QIcon('ico/python.ico'))
 		
 		self.main_label = QLabel('<p align="center">Authorization.</p>', self)
 		self.frame =QFrame(self)
@@ -84,10 +84,13 @@ class Login(QMainWindow):
 		exitAction = QAction('&Exit', self)
 		exitAction.setShortcut('Ctrl+Q')
 		exitAction.triggered.connect(qApp.quit)
+		terminalAction = QAction('$Terminal',self)
+		terminalAction.setShortcut('Ctrl+`')
+		terminalAction.triggered.connect(lambda: print('Terminal update! Soon...'))
 
 		fileMenu = menubar.addMenu('&File')
 		fileMenu.addAction(exitAction)
-
+		fileMenu.addAction(terminalAction)
 	def connect(self):
 		if len(str(self.dbname_line.text())) > 0:
 			if len(str(self.userlogin_line.text())) > 0:
@@ -116,7 +119,7 @@ class Auth(QWidget):
 		self.setMaximumSize(QtCore.QSize(360, 640))
 		self.setMinimumSize(QtCore.QSize(360, 640))
 		self.setStyleSheet("""background-color: rgb(75, 105, 240) """)
-		self.setWindowIcon(QIcon('python.ico'))
+		self.setWindowIcon(QIcon('ico/python.ico'))
 
 		self.frame =QFrame(self)
 
