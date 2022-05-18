@@ -1,4 +1,4 @@
-#Dude, this purty sucks. I'm f%$#ing hate this people. - Tony
+#Dude, this program sucks. I'm f%$#ing hate this code. - Tony
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon
@@ -44,33 +44,33 @@ class Login(QMainWindow):
 		self.back_button = QPushButton('Cancel', self)
 		self.back_button.clicked.connect(lambda: self.cl.emit())
 		x1 = 55
-		x2 = 205
+		x2 = 175
 		self.main_label.move(0, 0)
 		self.frame.move(x1-10, 35)
 		self.dbname_label.move(x1, 50)
-		self.dbname_line.move(x2, 48)
+		self.dbname_line.move(x2, 52)
 		self.userlogin_label.move(x1, 150)
-		self.userlogin_line.move(x2, 148)
+		self.userlogin_line.move(x2, 152)
 		self.pass_label.move(x1, 250)
-		self.pass_line.move(x2, 248)
+		self.pass_line.move(x2, 252)
 		self.host_label.move(x1, 350)
-		self.host_line.move(x2, 348)
+		self.host_line.move(x2, 352)
 		self.port_label.move(x1, 400)
-		self.port_line.move(x2, 398)
+		self.port_line.move(x2, 402)
 		self.connect_button.move(130, 450)
 		self.back_button.move(150, 550)
 
 		self.main_label.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 24px; color: rgb(255, 255, 255); font: bold "Times New Roman"; border-radius: 5px; min-width: 360; min-height: 30; max-width: 360; max-height: 30""")
 		self.frame.setStyleSheet("""background-color: rgb(255, 255, 255); min-height: 480; min-width: 270; border-radius: 8px """)
 		self.dbname_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
-		self.dbname_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
-		self.userlogin_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
+		self.dbname_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 125; max-width: 125; min-height: 24; border: 1px solid rgb(100,100,100)""")
+		self.userlogin_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 125; max-width: 125; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.userlogin_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
-		self.pass_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
+		self.pass_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 125; max-width: 125; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.pass_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
-		self.host_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
+		self.host_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 125; max-width: 125; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.host_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
-		self.port_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 50; min-height: 24; border: 1px solid rgb(100,100,100)""")
+		self.port_line.setStyleSheet("""font-size: 14px; border-radius: 4px; background-color: rgb(240, 240, 240); min-width: 125; max-width: 125; min-height: 24; border: 1px solid rgb(100,100,100)""")
 		self.port_label.setStyleSheet("""background-color: rgb(255, 255, 255); font-size: 14px; font: "Times New Roman" """)
 		self.connect_button.setStyleSheet("""background-color: rgb(75, 105, 240); font-size: 20px; color: rgb(255, 255, 255); font: "Times New Roman"; border-radius: 5px; min-width: 100; min-height: 24; max-width: 100; max-height: 24""")
 		self.back_button.setStyleSheet("""text-decoration: underline; background-color: rgb(75, 105, 240); font-size: 14px; color: white; font: bold "Times New Roman"; border-radius: 0px; min-width: 60; min-height: 24; max-width: 60; max-height: 24""")
@@ -109,12 +109,13 @@ class Login(QMainWindow):
 		else:
 			self.err.emit('Database name error: Database name line can\'t be empty!')
 
-class Auth(QWidget):
+class Auth(QMainWindow):
 	back = QtCore.pyqtSignal()
 	err = QtCore.pyqtSignal(str)
 	conn1 = QtCore.pyqtSignal(str, str, str, str, str, str)
 	def __init__(self, t1, t2, t3, t4,t5):
 		QWidget.__init__(self)
+		self.showUI()
 		self.setWindowTitle('Table selection.')
 		self.setMaximumSize(QtCore.QSize(360, 640))
 		self.setMinimumSize(QtCore.QSize(360, 640))
@@ -138,7 +139,7 @@ class Auth(QWidget):
 		self.main_label.move(0, 0)
 		self.frame.move(45, 35)
 		self.selecter_label.move(55, 50)
-		self.selecter_line.move(155, 50)
+		self.selecter_line.move(155, 49)
 		self.conn_button.move(130, 450)
 		self.back_button.move(150, 550)
 
@@ -156,6 +157,22 @@ class Auth(QWidget):
 		backAction.setShortcut('Ctrl+B')
 		backAction.triggered.connect(lambda: self.back.emit())
 
+	def showUI(self):
+
+		self.statusBar()
+
+		menubar = self.menuBar()
+
+		exitAction = QAction('&Exit', self)
+		exitAction.setShortcut('Ctrl+Q')
+		exitAction.triggered.connect(qApp.quit)
+		terminalAction = QAction('$Terminal',self)
+		terminalAction.setShortcut('Ctrl+`')
+		terminalAction.triggered.connect(lambda: print('Terminal update! Soon...'))
+
+		fileMenu = menubar.addMenu('&File')
+		fileMenu.addAction(exitAction)
+		fileMenu.addAction(terminalAction)
 	def conn(self, t1, t2, t3, t4,t5):
 		s = self.selecter_line.text()
 		try:
@@ -516,7 +533,10 @@ class ColumnWindow(QDialog):
             	else:
             		nn = ''
             	if def_value == 'Default value' or def_value == '':
-            		def_value = '0'
+            		if col_type == 'bool':
+            			def_value = 'False'
+            		else:
+            			def_value = '0'
             	if def_value == 'true':
             		def_value = 'True'
             	if def_value == 'false':
