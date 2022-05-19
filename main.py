@@ -318,8 +318,9 @@ class DataBaseEditor(QMainWindow):
 			self.adding_col.ko.connect(lambda: self.adding_col.close())
 			self.adding_col.err.connect(self.show_err)
 			self.adding_col.exec_()
-		except Exception:
+		except Exception as e:
 			self.show_err('Add_col error')
+			print(e)
 
 	def adding_colum(self, col_name, t1, t2, t3,t4,t5,s,default):
 		try:
@@ -464,6 +465,8 @@ class ColumnWindow(QDialog):
         	self.col_type.addItem('integer')
         	self.col_type.addItem('char')
         	self.col_type.addItem('bool')
+        	self.col_type.setFrame(True)
+        	self.col_type.setEditable(True)
 
         	self.n_null = QCheckBox("Not null?", self)
         	self.n_null.setChecked(True)
