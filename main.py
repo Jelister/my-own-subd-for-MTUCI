@@ -1,4 +1,3 @@
-#Dude, this program sucks. I'm f%$#ing hate this code. - Tony
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon
@@ -286,8 +285,8 @@ class DataBaseEditor(QMainWindow):
 
 		editMenu = menubar.addMenu('&Edit')
 		editMenu.addAction(rowAction)
-		editMenu.addAction(colAction)
 		editMenu.addAction(delrowAction)
+		editMenu.addAction(colAction)
 		editMenu.addAction(delcolAction)
 		editMenu.setStyleSheet("""color: rgb(0,0,0); background-color: rgb(255,255,255)""")
 
